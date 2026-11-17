@@ -5,18 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Bolt Profit Tracker</title>
     
-    <!-- PWA & Mobile App Meta Tags -->
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     
-    <!-- Inline Manifest to make it installable without extra files -->
     <link rel="manifest" href='data:application/manifest+json,{"name":"Bolt Tracker","short_name":"BoltTrack","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#10b981","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%2310b981%22/%3E%3Ctext x=%2250%22 y=%2265%22 font-size=%2250%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Arial%22 font-weight=%22bold%22%3E%F0%9F%9A%97%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}'>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* --- CORE APP STYLES --- */
         :root {
             --bg-primary: #0f172a;
             --bg-card: rgba(30, 41, 59, 0.6);
@@ -26,6 +23,7 @@
             --accent-green: #10b981;
             --accent-blue: #3b82f6;
             --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -36,16 +34,14 @@
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
-            /* Unique Beautiful Mesh Gradient Background */
             background-image: 
                 radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
                 radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
                 radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.1) 0px, transparent 50%),
                 radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
-            padding-bottom: 80px; /* Space for bottom nav */
+            padding-bottom: 80px;
         }
 
-        /* --- GLASSMORPHISM CARDS --- */
         .glass-card {
             background: var(--bg-card);
             backdrop-filter: blur(12px);
@@ -56,7 +52,6 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
         }
 
-        /* --- NAVIGATION --- */
         .top-header {
             padding: 20px 20px 10px;
             display: flex;
@@ -76,8 +71,8 @@
             border-top: 1px solid var(--border-glass);
             display: flex;
             justify-content: space-around;
-            padding: 12px 0;
-            padding-bottom: calc(12px + env(safe-area-inset-bottom)); /* iPhone notch support */
+            padding: 10px 0;
+            padding-bottom: calc(10px + env(safe-area-inset-bottom));
             z-index: 100;
         }
         .nav-item {
@@ -85,16 +80,15 @@
             flex-direction: column;
             align-items: center;
             color: var(--text-secondary);
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
-            width: 60px;
+            width: 25%;
         }
         .nav-item.active { color: var(--accent-green); }
-        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; }
+        .nav-item svg { width: 22px; height: 22px; margin-bottom: 4px; }
 
-        /* --- DASHBOARD SPECIFIC --- */
         .filter-scroll {
             display: flex;
             gap: 10px;
@@ -135,10 +129,11 @@
         }
         .stat-card.full { grid-column: span 2; }
         .stat-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
-        .stat-value { font-size: 22px; font-weight: 800; }
+        .stat-value { font-size: 20px; font-weight: 800; }
         .stat-value.green { color: var(--accent-green); }
         .stat-value.blue { color: var(--accent-blue); }
         .stat-value.orange { color: var(--accent-orange); }
+        .stat-value.red { color: var(--accent-red); }
 
         .chart-container {
             margin-top: 20px;
@@ -149,7 +144,6 @@
         }
         .chart-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--text-secondary);}
 
-        /* --- FORM SPECIFIC --- */
         .form-group { margin-bottom: 16px; }
         .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
         .form-input {
@@ -159,7 +153,7 @@
             border: 1px solid var(--border-glass);
             border-radius: 12px;
             color: var(--text-primary);
-            font-size: 16px; /* Prevents iOS zoom */
+            font-size: 16px;
             outline: none;
             transition: 0.2s;
         }
@@ -178,8 +172,41 @@
             box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
             margin-top: 10px;
         }
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
 
-        /* --- INSIGHTS SPECIFIC --- */
+        .history-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .history-info { flex: 1; }
+        .history-title { font-weight: 700; font-size: 14px; }
+        .history-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+        .history-actions { display: flex; gap: 10px; }
+        .icon-btn {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: var(--text-secondary);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .icon-btn.edit { color: var(--accent-blue); }
+        .icon-btn.delete { color: var(--accent-red); }
+        .icon-btn svg { width: 16px; height: 16px; }
+
         .insight-card {
             background: rgba(255,255,255,0.03);
             border-left: 4px solid var(--accent-green);
@@ -195,17 +222,17 @@
         .page { display: none; padding: 0 20px 20px; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .section-title { font-size: 18px; font-weight: 800; margin: 20px 0 15px; }
     </style>
 </head>
 <body>
 
-    <!-- TOP HEADER -->
     <div class="top-header">
         <h1>Bolt<span>Track</span></h1>
         <div style="font-size: 12px; color: var(--text-secondary);">Jos, NG</div>
     </div>
 
-    <!-- PAGES -->
     <main>
         <!-- DASHBOARD -->
         <div id="page-dashboard" class="page active">
@@ -226,9 +253,13 @@
                     <div class="stat-label">Distance</div>
                     <div class="stat-value blue" id="stat-km">0 km</div>
                 </div>
-                <div class="stat-card full">
-                    <div class="stat-label">Estimated Fuel Left in Tank</div>
+                <div class="stat-card">
+                    <div class="stat-label">Est. Fuel Left</div>
                     <div class="stat-value orange" id="stat-fuel">0.0 L</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Expenses</div>
+                    <div class="stat-value red" id="stat-expenses">₦0</div>
                 </div>
             </div>
 
@@ -241,13 +272,17 @@
                 <div class="chart-title">Revenue by Location</div>
                 <canvas id="pieChart" height="200"></canvas>
             </div>
+
+            <h3 class="section-title">Recent Trips (Tap to Edit/Delete)</h3>
+            <div id="recent-trips-list"></div>
         </div>
 
-        <!-- ADD TRIP -->
+        <!-- ADD/EDIT TRIP -->
         <div id="page-add" class="page">
             <div class="glass-card">
-                <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 20px;">Log Shift / Trip</h2>
+                <h2 id="trip-form-title" style="font-size: 20px; font-weight: 800; margin-bottom: 20px;">Log Shift / Trip</h2>
                 <form id="tripForm">
+                    <input type="hidden" id="edit-trip-id">
                     <div class="form-group">
                         <label class="form-label">Date</label>
                         <input type="date" id="input-date" required class="form-input">
@@ -255,15 +290,29 @@
                     <div class="form-group">
                         <label class="form-label">Location (Jos)</label>
                         <select id="input-location" required class="form-input">
-                            <option value="Terminus">City Centre (Terminus)</option>
-                            <option value="Ahmadu Bello Way">Ahmadu Bello Way</option>
-                            <option value="Rayfield">Rayfield</option>
-                            <option value="Bauchi Road">Bauchi Road</option>
-                            <option value="Bukuru">Bukuru</option>
-                            <option value="Zaria Road">Zaria Road</option>
-                            <option value="Farin Gada">Farin Gada</option>
-                            <option value="Stadium">Ahmadu Bello Stadium</option>
-                            <option value="Alanamu">Alanamu</option>
+                            <optgroup label="Central / North Jos">
+                                <option value="Terminus">City Centre (Terminus)</option>
+                                <option value="Ahmadu Bello Way">Ahmadu Bello Way</option>
+                                <option value="Zaria Road">Zaria Road</option>
+                                <option value="Farin Gada">Farin Gada</option>
+                                <option value="Stadium">Ahmadu Bello Stadium</option>
+                                <option value="Naraguta">Naraguta</option>
+                            </optgroup>
+                            <optgroup label="South / East Jos">
+                                <option value="Rayfield">Rayfield</option>
+                                <option value="Bukuru">Bukuru</option>
+                                <option value="Bauchi Road">Bauchi Road</option>
+                                <option value="Alanamu">Alanamu</option>
+                                <option value="Federal Low Cost">Federal Low Cost</option>
+                                <option value="Rantiya">Rantiya</option>
+                                <option value="Old Airport">Old Airport</option>
+                                <option value="Tudun Wada">Tudun Wada</option>
+                                <option value="Angwan Rogo">Angwan Rogo</option>
+                                <option value="Ungwan Rimi">Ungwan Rimi</option>
+                                <option value="Shere Hills">Shere Hills</option>
+                                <option value="Bowde">Bowde</option>
+                                <option value="Ganawuri">Ganawuri</option>
+                            </optgroup>
                             <option value="Other">Other</option>
                         </select>
                     </div>
@@ -291,9 +340,48 @@
                             <input type="number" id="input-commission" required class="form-input" placeholder="e.g. 1000">
                         </div>
                     </div>
-                    <button type="submit" class="btn-primary">Save Trip Data</button>
+                    <button type="submit" class="btn-primary" id="trip-submit-btn">Save Trip Data</button>
+                    <button type="button" class="btn-primary btn-danger" id="cancel-edit-btn" style="display:none;" onclick="cancelEdit()">Cancel Edit</button>
                 </form>
             </div>
+        </div>
+
+        <!-- EXPENSES (Repairs & Particulars) -->
+        <div id="page-expenses" class="page">
+            <div class="glass-card" style="margin-bottom: 20px;">
+                <h2 id="expense-form-title" style="font-size: 20px; font-weight: 800; margin-bottom: 20px;">Log Vehicle Expense</h2>
+                <form id="expenseForm">
+                    <input type="hidden" id="edit-expense-id">
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" id="expense-date" required class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Expense Type</label>
+                        <select id="expense-type" required class="form-input">
+                            <option value="Car Repair (Breakdown)">Car Repair (Breakdown)</option>
+                            <option value="Vehicle Particulars/Renewal">Vehicle Particulars/Renewal</option>
+                            <option value="Oil Change / Servicing">Oil Change / Servicing</option>
+                            <option value="Tire Replacement">Tire Replacement</option>
+                            <option value="Car Wash / Cleaning">Car Wash / Cleaning</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Amount (₦)</label>
+                        <input type="number" id="expense-cost" required class="form-input" placeholder="e.g. 15000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Brief Description (Optional)</label>
+                        <input type="text" id="expense-desc" class="form-input" placeholder="e.g. Replaced brake pads">
+                    </div>
+                    <button type="submit" class="btn-primary" id="expense-submit-btn">Save Expense</button>
+                    <button type="button" class="btn-primary btn-danger" id="cancel-expense-edit-btn" style="display:none;" onclick="cancelExpenseEdit()">Cancel Edit</button>
+                </form>
+            </div>
+
+            <h3 class="section-title">Recent Expenses</h3>
+            <div id="recent-expenses-list"></div>
         </div>
 
         <!-- INSIGHTS & SETTINGS -->
@@ -330,6 +418,10 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
             Add Trip
         </div>
+        <div class="nav-item" onclick="showPage('expenses', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+            Expenses
+        </div>
         <div class="nav-item" onclick="showPage('insights', this)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
             Insights
@@ -338,12 +430,14 @@
 
     <script>
         // --- STATE & INIT ---
-        let trips = JSON.parse(localStorage.getItem('bolt_trips_v2')) || [];
-        let settings = JSON.parse(localStorage.getItem('bolt_settings_v2')) || { efficiency: 10, capacity: 45 };
+        let trips = JSON.parse(localStorage.getItem('bolt_trips_v3')) || [];
+        let expenses = JSON.parse(localStorage.getItem('bolt_expenses_v3')) || [];
+        let settings = JSON.parse(localStorage.getItem('bolt_settings_v3')) || { efficiency: 10, capacity: 45 };
         let currentFilter = 'day';
         let barChart, pieChart;
 
         document.getElementById('input-date').valueAsDate = new Date();
+        document.getElementById('expense-date').valueAsDate = new Date();
         document.getElementById('setting-efficiency').value = settings.efficiency;
         document.getElementById('setting-capacity').value = settings.capacity;
 
@@ -356,20 +450,24 @@
             
             if(pageId === 'dashboard') updateDashboard();
             if(pageId === 'insights') updateInsights();
+            if(pageId === 'expenses') renderExpenses();
         }
 
         // --- SETTINGS ---
         function saveSettings() {
             settings.efficiency = parseFloat(document.getElementById('setting-efficiency').value) || 10;
             settings.capacity = parseFloat(document.getElementById('setting-capacity').value) || 45;
-            localStorage.setItem('bolt_settings_v2', JSON.stringify(settings));
+            localStorage.setItem('bolt_settings_v3', JSON.stringify(settings));
             alert('Car specs updated!');
         }
 
-        // --- DATA ENTRY ---
+        // --- TRIP ENTRY & EDITING ---
         document.getElementById('tripForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const trip = {
+            const editId = document.getElementById('edit-trip-id').value;
+            
+            const tripData = {
+                id: editId || Date.now().toString(),
                 date: document.getElementById('input-date').value,
                 location: document.getElementById('input-location').value,
                 km: parseFloat(document.getElementById('input-km').value),
@@ -379,24 +477,142 @@
                 commission: parseFloat(document.getElementById('input-commission').value)
             };
             
-            trip.netRevenue = trip.fare - trip.commission;
-            trip.profit = trip.netRevenue - trip.fuelCost;
+            tripData.netRevenue = tripData.fare - tripData.commission;
+            tripData.profit = tripData.netRevenue - tripData.fuelCost;
             
-            trips.push(trip);
-            localStorage.setItem('bolt_trips_v2', JSON.stringify(trips));
+            if (editId) {
+                const index = trips.findIndex(t => t.id === editId);
+                trips[index] = tripData;
+                cancelEdit();
+            } else {
+                trips.push(tripData);
+            }
+            
+            localStorage.setItem('bolt_trips_v3', JSON.stringify(trips));
             this.reset();
             document.getElementById('input-date').valueAsDate = new Date();
-            
-            // Quick visual feedback
-            const btn = this.querySelector('.btn-primary');
-            btn.innerText = "Saved Successfully!";
-            btn.style.background = "#059669";
-            setTimeout(() => {
-                btn.innerText = "Save Trip Data";
-                btn.style.background = "linear-gradient(135deg, #10b981, #059669)";
-                showPage('dashboard', document.querySelector('.nav-item'));
-            }, 1000);
+            showPage('dashboard', document.querySelector('.nav-item'));
         });
+
+        function editTrip(id) {
+            const trip = trips.find(t => t.id === id);
+            if (!trip) return;
+
+            document.getElementById('edit-trip-id').value = trip.id;
+            document.getElementById('input-date').value = trip.date;
+            document.getElementById('input-location').value = trip.location;
+            document.getElementById('input-km').value = trip.km;
+            document.getElementById('input-fuel-liters').value = trip.fuelLiters;
+            document.getElementById('input-fuel-cost').value = trip.fuelCost;
+            document.getElementById('input-fare').value = trip.fare;
+            document.getElementById('input-commission').value = trip.commission;
+
+            document.getElementById('trip-form-title').innerText = "Edit Trip";
+            document.getElementById('trip-submit-btn').innerText = "Update Trip";
+            document.getElementById('cancel-edit-btn').style.display = 'block';
+
+            showPage('add', document.querySelectorAll('.nav-item')[1]);
+        }
+
+        function cancelEdit() {
+            document.getElementById('tripForm').reset();
+            document.getElementById('edit-trip-id').value = '';
+            document.getElementById('input-date').valueAsDate = new Date();
+            document.getElementById('trip-form-title').innerText = "Log Shift / Trip";
+            document.getElementById('trip-submit-btn').innerText = "Save Trip Data";
+            document.getElementById('cancel-edit-btn').style.display = 'none';
+        }
+
+        function deleteTrip(id) {
+            if (confirm("Are you sure you want to delete this trip?")) {
+                trips = trips.filter(t => t.id !== id);
+                localStorage.setItem('bolt_trips_v3', JSON.stringify(trips));
+                updateDashboard();
+            }
+        }
+
+        // --- EXPENSES ENTRY & EDITING ---
+        document.getElementById('expenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const editId = document.getElementById('edit-expense-id').value;
+
+            const expData = {
+                id: editId || Date.now().toString(),
+                date: document.getElementById('expense-date').value,
+                type: document.getElementById('expense-type').value,
+                cost: parseFloat(document.getElementById('expense-cost').value),
+                desc: document.getElementById('expense-desc').value
+            };
+
+            if (editId) {
+                const index = expenses.findIndex(ex => ex.id === editId);
+                expenses[index] = expData;
+                cancelExpenseEdit();
+            } else {
+                expenses.push(expData);
+            }
+
+            localStorage.setItem('bolt_expenses_v3', JSON.stringify(expenses));
+            this.reset();
+            document.getElementById('expense-date').valueAsDate = new Date();
+            renderExpenses();
+        });
+
+        function editExpense(id) {
+            const exp = expenses.find(ex => ex.id === id);
+            if (!exp) return;
+
+            document.getElementById('edit-expense-id').value = exp.id;
+            document.getElementById('expense-date').value = exp.date;
+            document.getElementById('expense-type').value = exp.type;
+            document.getElementById('expense-cost').value = exp.cost;
+            document.getElementById('expense-desc').value = exp.desc;
+
+            document.getElementById('expense-form-title').innerText = "Edit Expense";
+            document.getElementById('expense-submit-btn').innerText = "Update Expense";
+            document.getElementById('cancel-expense-edit-btn').style.display = 'block';
+        }
+
+        function cancelExpenseEdit() {
+            document.getElementById('expenseForm').reset();
+            document.getElementById('edit-expense-id').value = '';
+            document.getElementById('expense-date').valueAsDate = new Date();
+            document.getElementById('expense-form-title').innerText = "Log Vehicle Expense";
+            document.getElementById('expense-submit-btn').innerText = "Save Expense";
+            document.getElementById('cancel-expense-edit-btn').style.display = 'none';
+            renderExpenses();
+        }
+
+        function deleteExpense(id) {
+            if (confirm("Are you sure you want to delete this expense?")) {
+                expenses = expenses.filter(ex => ex.id !== id);
+                localStorage.setItem('bolt_expenses_v3', JSON.stringify(expenses));
+                renderExpenses();
+                updateDashboard();
+            }
+        }
+
+        function renderExpenses() {
+            const container = document.getElementById('recent-expenses-list');
+            if (expenses.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No expenses logged yet.</p>';
+                return;
+            }
+
+            const sorted = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
+            container.innerHTML = sorted.map(exp => `
+                <div class="history-item">
+                    <div class="history-info">
+                        <div class="history-title">${exp.type}</div>
+                        <div class="history-sub">${new Date(exp.date).toLocaleDateString()} • ₦${exp.cost.toLocaleString()} ${exp.desc ? '• ' + exp.desc : ''}</div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="icon-btn edit" onclick="editExpense('${exp.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                        <button class="icon-btn delete" onclick="deleteExpense('${exp.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                    </div>
+                </div>
+            `).join('');
+        }
 
         // --- FILTERS ---
         function setFilter(filter, el) {
@@ -411,10 +627,7 @@
             return trips.filter(trip => {
                 const tripDate = new Date(trip.date);
                 if (currentFilter === 'day') return tripDate.toDateString() === now.toDateString();
-                if (currentFilter === 'week') {
-                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                    return tripDate >= weekAgo;
-                }
+                if (currentFilter === 'week') return tripDate >= new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
                 if (currentFilter === 'month') return tripDate.getMonth() === now.getMonth() && tripDate.getFullYear() === now.getFullYear();
                 if (currentFilter === 'quarter') {
                     const currentQ = Math.floor(now.getMonth() / 3);
@@ -426,30 +639,75 @@
             });
         }
 
+        function getFilteredExpenses() {
+            const now = new Date();
+            return expenses.filter(exp => {
+                const expDate = new Date(exp.date);
+                if (currentFilter === 'day') return expDate.toDateString() === now.toDateString();
+                if (currentFilter === 'week') return expDate >= new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                if (currentFilter === 'month') return expDate.getMonth() === now.getMonth() && expDate.getFullYear() === now.getFullYear();
+                if (currentFilter === 'quarter') {
+                    const currentQ = Math.floor(now.getMonth() / 3);
+                    const expQ = Math.floor(expDate.getMonth() / 3);
+                    return expQ === currentQ && expDate.getFullYear() === now.getFullYear();
+                }
+                if (currentFilter === 'year') return expDate.getFullYear() === now.getFullYear();
+                return true;
+            });
+        }
+
         // --- DASHBOARD RENDER ---
         function updateDashboard() {
-            const filtered = getFilteredTrips();
-            const totalProfit = filtered.reduce((sum, t) => sum + t.profit, 0);
-            const totalKm = filtered.reduce((sum, t) => sum + t.km, 0);
+            const filteredTrips = getFilteredTrips();
+            const filteredExpenses = getFilteredExpenses();
+
+            const totalProfit = filteredTrips.reduce((sum, t) => sum + t.profit, 0);
+            const totalKm = filteredTrips.reduce((sum, t) => sum + t.km, 0);
+            const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.cost, 0);
             
-            // Fuel calculation (All time)
+            // Net profit deducts expenses
+            const netProfit = totalProfit - totalExpenses;
+            
             let totalFuelBought = trips.reduce((sum, t) => sum + t.fuelLiters, 0);
             let totalFuelConsumed = trips.reduce((sum, t) => sum + (t.km / settings.efficiency), 0);
             let fuelLeft = Math.max(0, (settings.capacity - totalFuelConsumed + totalFuelBought)).toFixed(1); 
 
-            document.getElementById('stat-profit').innerText = `₦${totalProfit.toLocaleString()}`;
+            document.getElementById('stat-profit').innerText = `₦${netProfit.toLocaleString()}`;
             document.getElementById('stat-km').innerText = `${totalKm.toFixed(1)} km`;
             document.getElementById('stat-fuel').innerText = `${fuelLeft} L`;
+            document.getElementById('stat-expenses').innerText = `₦${totalExpenses.toLocaleString()}`;
 
-            renderCharts(filtered);
+            renderCharts(filteredTrips);
+            renderRecentTrips();
+        }
+
+        function renderRecentTrips() {
+            const container = document.getElementById('recent-trips-list');
+            const sorted = [...trips].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+            
+            if (sorted.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No trips logged yet.</p>';
+                return;
+            }
+
+            container.innerHTML = sorted.map(trip => `
+                <div class="history-item">
+                    <div class="history-info">
+                        <div class="history-title">${trip.location}</div>
+                        <div class="history-sub">${new Date(trip.date).toLocaleDateString()} • ${trip.km}km • ₦${trip.profit.toLocaleString()} profit</div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="icon-btn edit" onclick="editTrip('${trip.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                        <button class="icon-btn delete" onclick="deleteTrip('${trip.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function renderCharts(data) {
-            // Dark mode chart defaults
             Chart.defaults.color = '#94a3b8';
             Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
 
-            // Bar Chart
             const profitByDate = {};
             data.forEach(t => { profitByDate[t.date] = (profitByDate[t.date] || 0) + t.profit; });
             
@@ -459,7 +717,7 @@
                 data: {
                     labels: Object.keys(profitByDate).map(d => new Date(d).toLocaleDateString('en-US', {day:'numeric', month:'short'})),
                     datasets: [{
-                        label: 'Profit',
+                        label: 'Gross Profit',
                         data: Object.values(profitByDate),
                         backgroundColor: 'rgba(16, 185, 129, 0.6)',
                         borderColor: '#10b981',
@@ -470,18 +728,17 @@
                 options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } }
             });
 
-            // Pie Chart
             const revByLoc = {};
             data.forEach(t => { revByLoc[t.location] = (revByLoc[t.location] || 0) + t.netRevenue; });
 
             if(pieChart) pieChart.destroy();
             pieChart = new Chart(document.getElementById('pieChart'), {
-                type: 'doughnut', // Doughnut looks more premium than pie on mobile
+                type: 'doughnut',
                 data: {
                     labels: Object.keys(revByLoc),
                     datasets: [{
                         data: Object.values(revByLoc),
-                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'],
                         borderWidth: 0
                     }]
                 },
@@ -514,18 +771,21 @@
                 if (locStats[loc].trips > maxTrips) { maxTrips = locStats[loc].trips; mostTripsLoc = loc; }
             }
 
+            const totalExp = expenses.reduce((sum, e) => sum + e.cost, 0);
+            const totalRepairs = expenses.filter(e => e.type.includes('Repair')).reduce((sum, e) => sum + e.cost, 0);
+
             container.innerHTML = `
                 <div class="insight-card">
                     <div class="insight-title">📍 Most Profitable Route</div>
-                    <div class="insight-text"><strong>${bestLoc}</strong> yields the highest profit per km (₦${bestProfitPerKm.toFixed(2)}/km). <br><em>Tip: Position yourself here during peak hours ( mornings/evenings) to maximize returns.</em></div>
+                    <div class="insight-text"><strong>${bestLoc}</strong> yields the highest profit per km (₦${bestProfitPerKm.toFixed(2)}/km). <br><em>Tip: Position yourself here during peak hours to maximize returns.</em></div>
                 </div>
                 <div class="insight-card blue">
                     <div class="insight-title">🚗 Highest Rider Volume</div>
-                    <div class="insight-text"><strong>${mostTripsLoc}</strong> has the most trips (${maxTrips}). <br><em>Tip: High demand area. If profit/km is low here, use it for quick back-to-back trips to keep the wheels moving.</em></div>
+                    <div class="insight-text"><strong>${mostTripsLoc}</strong> has the most trips (${maxTrips}). <br><em>Tip: High demand area. Use it for quick back-to-back trips to keep the wheels moving.</em></div>
                 </div>
                 <div class="insight-card orange">
-                    <div class="insight-title">⛽ Fuel Efficiency</div>
-                    <div class="insight-text">Your car averages <strong>${settings.efficiency} km/L</strong>. <br><em>Tip: If actual consumption increases, check tire pressure and engine health. Proper maintenance directly increases your daily net profit.</em></div>
+                    <div class="insight-title">🔧 Maintenance Alert</div>
+                    <div class="insight-text">You have spent <strong>₦${totalRepairs.toLocaleString()}</strong> on repairs and <strong>₦${totalExp.toLocaleString()}</strong> on total vehicle expenses. <br><em>Tip: Regular servicing (oil, tires) prevents costly breakdowns. Ensure your weekly profit covers these overheads.</em></div>
                 </div>
             `;
         }
