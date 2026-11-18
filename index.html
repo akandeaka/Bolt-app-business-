@@ -99,6 +99,7 @@
         
         .btn-primary { width: 100%; padding: 16px; background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 16px; font-weight: 700; border: none; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); margin-top: 10px; }
         .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+        .btn-small { padding: 8px 12px; font-size: 12px; width: auto; margin-top: 0; }
 
         .history-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1;}
         .history-info { flex: 1; }
@@ -113,6 +114,7 @@
         .insight-card { background: rgba(255,255,255,0.03); border-left: 4px solid var(--accent-green); padding: 15px; border-radius: 0 12px 12px 0; margin-bottom: 12px; position: relative; z-index: 1;}
         .insight-card.blue { border-left-color: var(--accent-blue); }
         .insight-card.orange { border-left-color: var(--accent-orange); }
+        .insight-card.red { border-left-color: var(--accent-red); }
         .insight-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
         .insight-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
 
@@ -127,12 +129,18 @@
             font-size: 11px; letter-spacing: 1.5px; font-weight: 700; position: relative; z-index: 1;
         }
 
-        /* Breakdown Styles */
         .breakdown-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
         .breakdown-label { color: var(--text-secondary); }
         .breakdown-value { font-weight: 700; }
         .breakdown-divider { border-top: 1px dashed var(--border-glass); margin: 15px 0; }
         .breakdown-total { font-size: 16px; font-weight: 800; }
+
+        /* Progress Bar Styles */
+        .progress-container { background: rgba(255,255,255,0.1); border-radius: 10px; height: 12px; width: 100%; margin-top: 8px; overflow: hidden; }
+        .progress-bar { height: 100%; border-radius: 10px; transition: width 0.5s ease; }
+        .progress-bar.green { background: linear-gradient(90deg, #10b981, #34d399); }
+        .progress-bar.orange { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .progress-bar.red { background: linear-gradient(90deg, #ef4444, #f87171); }
     </style>
 </head>
 <body>
@@ -158,6 +166,11 @@
                 <button class="filter-btn" onclick="setFilter('year', this)">Year</button>
             </div>
 
+            <!-- SMART SHIFT ADVICE CARD -->
+            <div class="glass-card" style="margin-bottom: 15px; border-left: 4px solid var(--accent-orange);" id="smart-advice-card">
+                <!-- Populated by JS -->
+            </div>
+
             <div class="stat-grid">
                 <div class="stat-card">
                     <div class="stat-label">Net Trip Profit</div>
@@ -181,7 +194,7 @@
                 </div>
             </div>
 
-            <!-- NEW: DAILY PROFIT BREAKDOWN CARD -->
+            <!-- DAILY PROFIT BREAKDOWN CARD -->
             <div class="glass-card" style="margin-top: 20px;">
                 <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 15px; color: var(--text-primary);">📊 Daily Profit Breakdown</h3>
                 
@@ -204,25 +217,26 @@
                     <span>= Net Trip Profit</span>
                     <span style="color: var(--accent-green);" id="break-net">₦0</span>
                 </div>
-                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 5px; font-style: italic;">
-                    *Note: Vehicle repairs and particulars are tracked separately in the Expenses tab.
+            </div>
+
+            <!-- TARGET PROGRESS CARD -->
+            <div class="glass-card" style="margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <h3 style="font-size: 16px; font-weight: 800;">🎯 Daily Target Progress</h3>
+                    <span style="font-size: 12px; color: var(--text-secondary);" id="target-text">0 / ₦0</span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar green" id="target-bar" style="width: 0%;"></div>
+                </div>
+                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 8px; font-style: italic;">
+                    Set your target in the Insights tab. No rigid hours: stop when you hit your goal or when fuel burn outweighs returns.
                 </div>
             </div>
 
             <div class="glass-card" style="margin-top: 20px;" id="service-status-card">
                 <div style="text-align:center; color: var(--text-secondary); padding: 10px;">
-                    ⚙️ Go to <strong>Insights</strong> to set your Odometer readings for service tracking.
+                    ⚙️ Go to <strong>Insights</strong> to set your Odometer & Documents.
                 </div>
-            </div>
-
-            <div class="chart-container">
-                <div class="chart-title">Profit Trend</div>
-                <canvas id="barChart" height="150"></canvas>
-            </div>
-
-            <div class="chart-container">
-                <div class="chart-title">Revenue by Location</div>
-                <canvas id="pieChart" height="200"></canvas>
             </div>
 
             <h3 class="section-title">Recent Trips</h3>
@@ -272,12 +286,12 @@
                         <div class="form-group">
                             <label class="form-label">Total Km Driven</label>
                             <input type="number" step="0.1" id="input-km" required class="form-input" placeholder="e.g. 45">
-                            <div class="form-hint">⚠️ Include ALL km driven (Rider + Non-Rider/Dead mileage).</div>
+                            <div class="form-hint">⚠️ Include ALL km (Rider + Non-Rider).</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Fuel Bought (L)</label>
                             <input type="number" step="0.1" id="input-fuel-liters" required class="form-input" placeholder="e.g. 5">
-                            <div class="form-hint">Enter 0 if you didn't buy fuel today.</div>
+                            <div class="form-hint">Enter 0 if none.</div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -339,14 +353,18 @@
 
         <!-- INSIGHTS & SETTINGS -->
         <div id="page-insights" class="page">
+            <!-- Vehicle Setup -->
             <div class="glass-card" style="margin-bottom: 20px;">
                 <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 5px;">Vehicle Setup</h2>
                 <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 15px;">VW Polo 1.4 MPI (1990-2000 Era)</p>
-                
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                     <div class="form-group" style="margin:0">
                         <label class="form-label">Efficiency (km/L)</label>
                         <input type="number" step="0.1" id="setting-efficiency" class="form-input" placeholder="11">
+                    </div>
+                    <div class="form-group" style="margin:0">
+                        <label class="form-label">Daily Profit Target (₦)</label>
+                        <input type="number" id="setting-target" class="form-input" placeholder="15000">
                     </div>
                     <div class="form-group" style="margin:0">
                         <label class="form-label">Current Odometer (km)</label>
@@ -356,12 +374,23 @@
                         <label class="form-label">Last Serviced (km)</label>
                         <input type="number" id="setting-last-serv" class="form-input" placeholder="145000">
                     </div>
-                    <div class="form-group" style="margin:0">
+                    <div class="form-group" style="margin:0; grid-column: span 2;">
                         <label class="form-label">Service Interval (km)</label>
                         <input type="number" id="setting-serv-interval" class="form-input" placeholder="10000">
                     </div>
                 </div>
                 <button onclick="saveSettings()" class="btn-primary" style="margin-top: 15px; background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);">Update Car Specs</button>
+            </div>
+
+            <!-- Document Expiry Tracker -->
+            <div class="glass-card" style="margin-bottom: 20px;">
+                <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 15px;">📄 Document Expiry Tracker</h2>
+                <form id="docForm" style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <input type="text" id="doc-name" placeholder="e.g., Hackney Permit" required class="form-input" style="flex: 1; min-width: 120px;">
+                    <input type="date" id="doc-date" required class="form-input" style="flex: 1; min-width: 120px;">
+                    <button type="submit" class="btn-primary btn-small" style="flex: 0 0 auto;">Add</button>
+                </form>
+                <div id="doc-list"></div>
             </div>
 
             <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 15px; padding-left: 5px;">Business & Maintenance Insights</h2>
@@ -394,11 +423,13 @@
 
     <script>
         // --- STATE & INIT ---
-        let trips = JSON.parse(localStorage.getItem('bolt_trips_v5')) || [];
-        let expenses = JSON.parse(localStorage.getItem('bolt_expenses_v5')) || [];
+        let trips = JSON.parse(localStorage.getItem('bolt_trips_v6')) || [];
+        let expenses = JSON.parse(localStorage.getItem('bolt_expenses_v6')) || [];
+        let documents = JSON.parse(localStorage.getItem('bolt_docs_v6')) || [];
         
-        let settings = JSON.parse(localStorage.getItem('bolt_settings_v5')) || {};
+        let settings = JSON.parse(localStorage.getItem('bolt_settings_v6')) || {};
         settings.efficiency = settings.efficiency || 11; 
+        settings.dailyTarget = settings.dailyTarget || 15000;
         settings.startingOdometer = settings.startingOdometer || 0;
         settings.lastServiceOdometer = settings.lastServiceOdometer || 0;
         settings.serviceInterval = settings.serviceInterval || 10000; 
@@ -410,6 +441,7 @@
         document.getElementById('expense-date').valueAsDate = new Date();
         
         document.getElementById('setting-efficiency').value = settings.efficiency;
+        document.getElementById('setting-target').value = settings.dailyTarget;
         document.getElementById('setting-start-odo').value = settings.startingOdometer || '';
         document.getElementById('setting-last-serv').value = settings.lastServiceOdometer || '';
         document.getElementById('setting-serv-interval').value = settings.serviceInterval;
@@ -421,21 +453,23 @@
             if(el) el.classList.add('active');
             
             if(pageId === 'dashboard') updateDashboard();
-            if(pageId === 'insights') updateInsights();
+            if(pageId === 'insights') { updateInsights(); renderDocuments(); }
             if(pageId === 'expenses') renderExpenses();
         }
 
         function saveSettings() {
             settings.efficiency = parseFloat(document.getElementById('setting-efficiency').value) || 11;
+            settings.dailyTarget = parseFloat(document.getElementById('setting-target').value) || 15000;
             settings.startingOdometer = parseFloat(document.getElementById('setting-start-odo').value) || 0;
             settings.lastServiceOdometer = parseFloat(document.getElementById('setting-last-serv').value) || 0;
             settings.serviceInterval = parseFloat(document.getElementById('setting-serv-interval').value) || 10000;
             
-            localStorage.setItem('bolt_settings_v5', JSON.stringify(settings));
-            alert('Car specs updated successfully!');
+            localStorage.setItem('bolt_settings_v6', JSON.stringify(settings));
+            alert('Car specs and target updated successfully!');
             renderServiceStatus();
         }
 
+        // --- TRIP LOGIC ---
         document.getElementById('tripForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const editId = document.getElementById('edit-trip-id').value;
@@ -458,7 +492,7 @@
                 cancelEdit();
             } else { trips.push(tripData); }
             
-            localStorage.setItem('bolt_trips_v5', JSON.stringify(trips));
+            localStorage.setItem('bolt_trips_v6', JSON.stringify(trips));
             this.reset();
             document.getElementById('input-date').valueAsDate = new Date();
             showPage('dashboard', document.querySelector('.nav-item'));
@@ -493,11 +527,12 @@
         function deleteTrip(id) {
             if (confirm("Are you sure you want to delete this trip?")) {
                 trips = trips.filter(t => t.id !== id);
-                localStorage.setItem('bolt_trips_v5', JSON.stringify(trips));
+                localStorage.setItem('bolt_trips_v6', JSON.stringify(trips));
                 updateDashboard();
             }
         }
 
+        // --- EXPENSE LOGIC ---
         document.getElementById('expenseForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const editId = document.getElementById('edit-expense-id').value;
@@ -513,7 +548,7 @@
                 expenses[index] = expData;
                 cancelExpenseEdit();
             } else { expenses.push(expData); }
-            localStorage.setItem('bolt_expenses_v5', JSON.stringify(expenses));
+            localStorage.setItem('bolt_expenses_v6', JSON.stringify(expenses));
             this.reset();
             document.getElementById('expense-date').valueAsDate = new Date();
             renderExpenses();
@@ -545,7 +580,7 @@
         function deleteExpense(id) {
             if (confirm("Are you sure you want to delete this expense?")) {
                 expenses = expenses.filter(ex => ex.id !== id);
-                localStorage.setItem('bolt_expenses_v5', JSON.stringify(expenses));
+                localStorage.setItem('bolt_expenses_v6', JSON.stringify(expenses));
                 renderExpenses();
                 updateDashboard();
             }
@@ -569,6 +604,75 @@
             `).join('');
         }
 
+        // --- DOCUMENT TRACKER LOGIC ---
+        document.getElementById('docForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const docData = {
+                id: Date.now().toString(),
+                name: document.getElementById('doc-name').value,
+                expiryDate: document.getElementById('doc-date').value
+            };
+            documents.push(docData);
+            localStorage.setItem('bolt_docs_v6', JSON.stringify(documents));
+            this.reset();
+            renderDocuments();
+        });
+
+        function deleteDocument(id) {
+            if (confirm("Delete this document record?")) {
+                documents = documents.filter(d => d.id !== id);
+                localStorage.setItem('bolt_docs_v6', JSON.stringify(documents));
+                renderDocuments();
+            }
+        }
+
+        function renderDocuments() {
+            const container = document.getElementById('doc-list');
+            if (documents.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary); font-size: 13px; text-align: center;">No documents added yet.</p>';
+                return;
+            }
+            
+            const today = new Date();
+            const sortedDocs = [...documents].sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+
+            container.innerHTML = sortedDocs.map(doc => {
+                const expiry = new Date(doc.expiryDate);
+                const daysLeft = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+                
+                let statusColor = 'var(--accent-green)';
+                let statusText = `${daysLeft} days left`;
+                let cardClass = '';
+
+                if (daysLeft < 0) {
+                    statusColor = 'var(--accent-red)';
+                    statusText = `EXPIRED ${Math.abs(daysLeft)} days ago`;
+                    cardClass = 'red';
+                } else if (daysLeft <= 15) {
+                    statusColor = 'var(--accent-red)';
+                    statusText = `URGENT: ${daysLeft} days left`;
+                    cardClass = 'red';
+                } else if (daysLeft <= 30) {
+                    statusColor = 'var(--accent-orange)';
+                    statusText = `${daysLeft} days left`;
+                    cardClass = 'orange';
+                }
+
+                return `
+                <div class="insight-card ${cardClass}" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div class="insight-title">${doc.name}</div>
+                        <div class="insight-text">Expires: ${new Date(doc.expiryDate).toLocaleDateString()}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: 800; font-size: 14px; color: ${statusColor};">${statusText}</div>
+                        <button class="icon-btn delete" style="margin-top: 5px; margin-left: auto;" onclick="deleteDocument('${doc.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // --- FILTERS & DASHBOARD ---
         function setFilter(filter, el) {
             currentFilter = filter;
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -593,47 +697,23 @@
             });
         }
 
-        function getFilteredExpenses() {
-            const now = new Date();
-            return expenses.filter(exp => {
-                const expDate = new Date(exp.date);
-                if (currentFilter === 'day') return expDate.toDateString() === now.toDateString();
-                if (currentFilter === 'week') return expDate >= new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                if (currentFilter === 'month') return expDate.getMonth() === now.getMonth() && expDate.getFullYear() === now.getFullYear();
-                if (currentFilter === 'quarter') {
-                    const currentQ = Math.floor(now.getMonth() / 3);
-                    const expQ = Math.floor(expDate.getMonth() / 3);
-                    return expQ === currentQ && expDate.getFullYear() === now.getFullYear();
-                }
-                if (currentFilter === 'year') return expDate.getFullYear() === now.getFullYear();
-                return true;
-            });
-        }
-
         function updateDashboard() {
             const filteredTrips = getFilteredTrips();
-            const filteredExpenses = getFilteredExpenses();
             
-            // --- NEW BREAKDOWN CALCULATIONS ---
             const totalFares = filteredTrips.reduce((sum, t) => sum + t.fare, 0);
             const totalCommission = filteredTrips.reduce((sum, t) => sum + t.commission, 0);
             const totalFuelCost = filteredTrips.reduce((sum, t) => sum + t.fuelCost, 0);
             const totalKm = filteredTrips.reduce((sum, t) => sum + t.km, 0);
-            
-            // Net Trip Profit = (Total Fares - Bolt Commission) - Fuel Cost
             const netTripProfit = (totalFares - totalCommission) - totalFuelCost;
 
-            // Fuel Calculations
             const allTimeFuelBought = trips.reduce((sum, t) => sum + t.fuelLiters, 0);
             const allTimeKmDriven = trips.reduce((sum, t) => sum + t.km, 0);
-            const allTimeFuelConsumed = allTimeKmDriven / settings.efficiency;
-            const actualTankLevel = Math.max(0, allTimeFuelBought - allTimeFuelConsumed);
+            const actualTankLevel = Math.max(0, allTimeFuelBought - (allTimeKmDriven / settings.efficiency));
 
             const periodFuelBought = filteredTrips.reduce((sum, t) => sum + t.fuelLiters, 0);
-            const periodFuelConsumed = totalKm / settings.efficiency;
-            const periodFuelBalance = periodFuelBought - periodFuelConsumed;
+            const periodFuelBalance = periodFuelBought - (totalKm / settings.efficiency);
 
-            // Update Top Stat Cards
+            // Update Stats
             document.getElementById('stat-profit').innerText = `₦${netTripProfit.toLocaleString()}`;
             document.getElementById('stat-fares').innerText = `₦${totalFares.toLocaleString()}`;
             document.getElementById('stat-km').innerText = `${totalKm.toFixed(1)} km`;
@@ -641,15 +721,39 @@
             
             const periodFuelEl = document.getElementById('stat-period-fuel');
             periodFuelEl.innerText = `${periodFuelBalance.toFixed(1)} L`;
-            if (periodFuelBalance < 0) periodFuelEl.className = 'stat-value red'; 
-            else if (periodFuelBalance === 0) periodFuelEl.className = 'stat-value orange'; 
-            else periodFuelEl.className = 'stat-value purple'; 
+            periodFuelEl.className = periodFuelBalance < 0 ? 'stat-value red' : (periodFuelBalance === 0 ? 'stat-value orange' : 'stat-value purple');
 
-            // Update Breakdown Card
+            // Update Breakdown
             document.getElementById('break-fares').innerText = `₦${totalFares.toLocaleString()}`;
             document.getElementById('break-comm').innerText = `-₦${totalCommission.toLocaleString()}`;
             document.getElementById('break-fuel').innerText = `-₦${totalFuelCost.toLocaleString()}`;
             document.getElementById('break-net').innerText = `₦${netTripProfit.toLocaleString()}`;
+
+            // SMART TARGET & ADVICE LOGIC
+            const target = settings.dailyTarget;
+            const progress = Math.min(100, Math.max(0, (netTripProfit / target) * 100));
+            document.getElementById('target-text').innerText = `₦${netTripProfit.toLocaleString()} / ₦${target.toLocaleString()}`;
+            
+            const bar = document.getElementById('target-bar');
+            bar.style.width = `${progress}%`;
+            bar.className = `progress-bar ${progress >= 100 ? 'green' : (progress >= 50 ? 'orange' : 'red')}`;
+
+            // Smart Shift Advice
+            const adviceCard = document.getElementById('smart-advice-card');
+            const deadKmTrips = filteredTrips.filter(t => t.fare === 0).reduce((sum, t) => sum + t.km, 0);
+            
+            if (netTripProfit >= target) {
+                adviceCard.innerHTML = `<div style="display:flex; gap:12px; align-items:center;"><div style="font-size:24px;">🎉</div><div><div class="insight-title" style="color:var(--accent-green);">Target Achieved!</div><div class="insight-text">You've hit your daily profit goal. Consider ending your shift to avoid unnecessary wear and fuel burn.</div></div></div>`;
+                adviceCard.style.borderLeftColor = 'var(--accent-green)';
+            } else if (deadKmTrips > 15 && periodFuelBalance < 0) {
+                adviceCard.innerHTML = `<div style="display:flex; gap:12px; align-items:center;"><div style="font-size:24px;">⚠️</div><div><div class="insight-title" style="color:var(--accent-red);">Fuel Burn Warning</div><div class="insight-text">You've driven ${deadKmTrips}km with no riders and your daily fuel balance is negative. Continuing to chase riders may result in a net loss. Consider going home.</div></div></div>`;
+                adviceCard.style.borderLeftColor = 'var(--accent-red)';
+            } else if (deadKmTrips > 10) {
+                adviceCard.innerHTML = `<div style="display:flex; gap:12px; align-items:center;"><div style="font-size:24px;">💡</div><div><div class="insight-title" style="color:var(--accent-orange);">Low Demand Detected</div><div class="insight-text">You've driven ${deadKmTrips}km without a rider. If this continues, you will burn more fuel than you earn. Consider relocating to a hotter zone or ending the shift.</div></div></div>`;
+                adviceCard.style.borderLeftColor = 'var(--accent-orange)';
+            } else {
+                adviceCard.style.display = 'none';
+            }
 
             renderCharts(filteredTrips);
             renderRecentTrips();
@@ -676,7 +780,7 @@
                 statusColor = 'var(--accent-red)';
                 statusText = 'OVERDUE';
                 statusIcon = '🚨';
-                message = `Service is overdue by <strong>${Math.abs(kmUntilNext).toLocaleString()} km</strong>. Please service your Polo immediately to prevent engine damage!`;
+                message = `Service is overdue by <strong>${Math.abs(kmUntilNext).toLocaleString()} km</strong>. Please service your Polo immediately!`;
             } else if (kmUntilNext <= 1000) {
                 statusColor = 'var(--accent-orange)';
                 statusText = 'Due Soon';
@@ -775,26 +879,21 @@
                 if (locStats[loc].deadKm > maxDeadKm) { maxDeadKm = locStats[loc].deadKm; highestDeadKmLoc = loc; }
             }
 
-            const totalExp = expenses.reduce((sum, e) => sum + e.cost, 0);
             const totalRepairs = expenses.filter(e => e.type.includes('Repair')).reduce((sum, e) => sum + e.cost, 0);
 
             container.innerHTML = `
                 <div class="insight-card">
                     <div class="insight-title">📍 Most Profitable Route</div>
-                    <div class="insight-text"><strong>${bestLoc}</strong> yields the highest profit per km (₦${bestProfitPerKm.toFixed(2)}/km). <br><em>Tip: Position yourself here during peak hours to maximize returns.</em></div>
-                </div>
-                <div class="insight-card blue">
-                    <div class="insight-title">🚗 Highest Rider Volume</div>
-                    <div class="insight-text"><strong>${mostTripsLoc}</strong> has the most trips (${maxTrips}). <br><em>Tip: High demand area. Use it for quick back-to-back trips to keep the wheels moving.</em></div>
+                    <div class="insight-text"><strong>${bestLoc}</strong> yields the highest profit per km (₦${bestProfitPerKm.toFixed(2)}/km). <br><em>Tip: Position yourself here during peak hours.</em></div>
                 </div>
                 ${maxDeadKm > 0 ? `
                 <div class="insight-card orange">
                     <div class="insight-title">⚠️ Dead Mileage Warning</div>
-                    <div class="insight-text">You have driven <strong>${maxDeadKm} km without riders</strong> mostly in <strong>${highestDeadKmLoc}</strong>. <br><em>Tip: This area is consuming your fuel without generating revenue. Consider avoiding this zone during off-peak hours.</em></div>
+                    <div class="insight-text">You have driven <strong>${maxDeadKm} km without riders</strong> mostly in <strong>${highestDeadKmLoc}</strong>. <br><em>Tip: This area is consuming your fuel without generating revenue. Avoid this zone during off-peak hours.</em></div>
                 </div>` : ''}
                 <div class="insight-card">
                     <div class="insight-title">🔧 Polo 1.4 MPI Maintenance Tip</div>
-                    <div class="insight-text">You have spent <strong>₦${totalRepairs.toLocaleString()}</strong> on repairs. <br><em>Tip: The 1.4 MPI engine is reliable but sensitive to oil quality. Stick to 5W-30 or 5W-40 synthetic oil and change it strictly within your ${settings.serviceInterval.toLocaleString()} km interval to avoid timing chain wear.</em></div>
+                    <div class="insight-text">You have spent <strong>₦${totalRepairs.toLocaleString()}</strong> on repairs. <br><em>Tip: Stick to 5W-30 or 5W-40 synthetic oil and change it strictly within your ${settings.serviceInterval.toLocaleString()} km interval to avoid timing chain wear.</em></div>
                 </div>
             `;
         }
