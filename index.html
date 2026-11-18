@@ -126,6 +126,13 @@
             text-align: center; padding: 20px 0 10px; color: rgba(255,255,255,0.4);
             font-size: 11px; letter-spacing: 1.5px; font-weight: 700; position: relative; z-index: 1;
         }
+
+        /* Breakdown Styles */
+        .breakdown-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
+        .breakdown-label { color: var(--text-secondary); }
+        .breakdown-value { font-weight: 700; }
+        .breakdown-divider { border-top: 1px dashed var(--border-glass); margin: 15px 0; }
+        .breakdown-total { font-size: 16px; font-weight: 800; }
     </style>
 </head>
 <body>
@@ -153,17 +160,16 @@
 
             <div class="stat-grid">
                 <div class="stat-card">
-                    <div class="stat-label">Net Profit</div>
+                    <div class="stat-label">Net Trip Profit</div>
                     <div class="stat-value green" id="stat-profit">₦0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Total Expenses</div>
-                    <div class="stat-value red" id="stat-expenses">₦0</div>
+                    <div class="stat-label">Total Fares Collected</div>
+                    <div class="stat-value blue" id="stat-fares">₦0</div>
                 </div>
-                <!-- Updated Label to be explicitly clear -->
                 <div class="stat-card">
                     <div class="stat-label">Total Km (Rider + Non-Rider)</div>
-                    <div class="stat-value blue" id="stat-km">0 km</div>
+                    <div class="stat-value orange" id="stat-km">0 km</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">Period Fuel Balance</div>
@@ -175,7 +181,34 @@
                 </div>
             </div>
 
-            <!-- Updated Service Card to show the math -->
+            <!-- NEW: DAILY PROFIT BREAKDOWN CARD -->
+            <div class="glass-card" style="margin-top: 20px;">
+                <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 15px; color: var(--text-primary);">📊 Daily Profit Breakdown</h3>
+                
+                <div class="breakdown-row">
+                    <span class="breakdown-label">Total Amount Paid by Customers</span>
+                    <span class="breakdown-value" style="color: var(--accent-blue);" id="break-fares">₦0</span>
+                </div>
+                <div class="breakdown-row">
+                    <span class="breakdown-label">Less: Bolt Commission</span>
+                    <span class="breakdown-value" style="color: var(--accent-red);" id="break-comm">-₦0</span>
+                </div>
+                <div class="breakdown-row">
+                    <span class="breakdown-label">Less: Fuel Purchased</span>
+                    <span class="breakdown-value" style="color: var(--accent-red);" id="break-fuel">-₦0</span>
+                </div>
+                
+                <div class="breakdown-divider"></div>
+                
+                <div class="breakdown-row breakdown-total">
+                    <span>= Net Trip Profit</span>
+                    <span style="color: var(--accent-green);" id="break-net">₦0</span>
+                </div>
+                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 5px; font-style: italic;">
+                    *Note: Vehicle repairs and particulars are tracked separately in the Expenses tab.
+                </div>
+            </div>
+
             <div class="glass-card" style="margin-top: 20px;" id="service-status-card">
                 <div style="text-align:center; color: var(--text-secondary); padding: 10px;">
                     ⚙️ Go to <strong>Insights</strong> to set your Odometer readings for service tracking.
@@ -253,7 +286,7 @@
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                         <div class="form-group">
-                            <label class="form-label">Fare Paid (₦)</label>
+                            <label class="form-label">Fare Paid by Customer (₦)</label>
                             <input type="number" id="input-fare" required class="form-input" placeholder="0 if no rider">
                         </div>
                         <div class="form-group">
@@ -361,10 +394,10 @@
 
     <script>
         // --- STATE & INIT ---
-        let trips = JSON.parse(localStorage.getItem('bolt_trips_v4')) || [];
-        let expenses = JSON.parse(localStorage.getItem('bolt_expenses_v4')) || [];
+        let trips = JSON.parse(localStorage.getItem('bolt_trips_v5')) || [];
+        let expenses = JSON.parse(localStorage.getItem('bolt_expenses_v5')) || [];
         
-        let settings = JSON.parse(localStorage.getItem('bolt_settings_v4')) || {};
+        let settings = JSON.parse(localStorage.getItem('bolt_settings_v5')) || {};
         settings.efficiency = settings.efficiency || 11; 
         settings.startingOdometer = settings.startingOdometer || 0;
         settings.lastServiceOdometer = settings.lastServiceOdometer || 0;
@@ -398,7 +431,7 @@
             settings.lastServiceOdometer = parseFloat(document.getElementById('setting-last-serv').value) || 0;
             settings.serviceInterval = parseFloat(document.getElementById('setting-serv-interval').value) || 10000;
             
-            localStorage.setItem('bolt_settings_v4', JSON.stringify(settings));
+            localStorage.setItem('bolt_settings_v5', JSON.stringify(settings));
             alert('Car specs updated successfully!');
             renderServiceStatus();
         }
@@ -425,7 +458,7 @@
                 cancelEdit();
             } else { trips.push(tripData); }
             
-            localStorage.setItem('bolt_trips_v4', JSON.stringify(trips));
+            localStorage.setItem('bolt_trips_v5', JSON.stringify(trips));
             this.reset();
             document.getElementById('input-date').valueAsDate = new Date();
             showPage('dashboard', document.querySelector('.nav-item'));
@@ -460,7 +493,7 @@
         function deleteTrip(id) {
             if (confirm("Are you sure you want to delete this trip?")) {
                 trips = trips.filter(t => t.id !== id);
-                localStorage.setItem('bolt_trips_v4', JSON.stringify(trips));
+                localStorage.setItem('bolt_trips_v5', JSON.stringify(trips));
                 updateDashboard();
             }
         }
@@ -480,7 +513,7 @@
                 expenses[index] = expData;
                 cancelExpenseEdit();
             } else { expenses.push(expData); }
-            localStorage.setItem('bolt_expenses_v4', JSON.stringify(expenses));
+            localStorage.setItem('bolt_expenses_v5', JSON.stringify(expenses));
             this.reset();
             document.getElementById('expense-date').valueAsDate = new Date();
             renderExpenses();
@@ -512,7 +545,7 @@
         function deleteExpense(id) {
             if (confirm("Are you sure you want to delete this expense?")) {
                 expenses = expenses.filter(ex => ex.id !== id);
-                localStorage.setItem('bolt_expenses_v4', JSON.stringify(expenses));
+                localStorage.setItem('bolt_expenses_v5', JSON.stringify(expenses));
                 renderExpenses();
                 updateDashboard();
             }
@@ -581,11 +614,16 @@
             const filteredTrips = getFilteredTrips();
             const filteredExpenses = getFilteredExpenses();
             
-            const totalProfit = filteredTrips.reduce((sum, t) => sum + t.profit, 0);
+            // --- NEW BREAKDOWN CALCULATIONS ---
+            const totalFares = filteredTrips.reduce((sum, t) => sum + t.fare, 0);
+            const totalCommission = filteredTrips.reduce((sum, t) => sum + t.commission, 0);
+            const totalFuelCost = filteredTrips.reduce((sum, t) => sum + t.fuelCost, 0);
             const totalKm = filteredTrips.reduce((sum, t) => sum + t.km, 0);
-            const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.cost, 0);
-            const netProfit = totalProfit - totalExpenses;
             
+            // Net Trip Profit = (Total Fares - Bolt Commission) - Fuel Cost
+            const netTripProfit = (totalFares - totalCommission) - totalFuelCost;
+
+            // Fuel Calculations
             const allTimeFuelBought = trips.reduce((sum, t) => sum + t.fuelLiters, 0);
             const allTimeKmDriven = trips.reduce((sum, t) => sum + t.km, 0);
             const allTimeFuelConsumed = allTimeKmDriven / settings.efficiency;
@@ -595,36 +633,35 @@
             const periodFuelConsumed = totalKm / settings.efficiency;
             const periodFuelBalance = periodFuelBought - periodFuelConsumed;
 
-            document.getElementById('stat-profit').innerText = `₦${netProfit.toLocaleString()}`;
+            // Update Top Stat Cards
+            document.getElementById('stat-profit').innerText = `₦${netTripProfit.toLocaleString()}`;
+            document.getElementById('stat-fares').innerText = `₦${totalFares.toLocaleString()}`;
             document.getElementById('stat-km').innerText = `${totalKm.toFixed(1)} km`;
-            document.getElementById('stat-expenses').innerText = `₦${totalExpenses.toLocaleString()}`;
-            
             document.getElementById('stat-fuel').innerText = `${actualTankLevel.toFixed(1)} L`;
             
             const periodFuelEl = document.getElementById('stat-period-fuel');
             periodFuelEl.innerText = `${periodFuelBalance.toFixed(1)} L`;
-            if (periodFuelBalance < 0) {
-                periodFuelEl.className = 'stat-value red'; 
-            } else if (periodFuelBalance === 0) {
-                periodFuelEl.className = 'stat-value orange'; 
-            } else {
-                periodFuelEl.className = 'stat-value purple'; 
-            }
+            if (periodFuelBalance < 0) periodFuelEl.className = 'stat-value red'; 
+            else if (periodFuelBalance === 0) periodFuelEl.className = 'stat-value orange'; 
+            else periodFuelEl.className = 'stat-value purple'; 
+
+            // Update Breakdown Card
+            document.getElementById('break-fares').innerText = `₦${totalFares.toLocaleString()}`;
+            document.getElementById('break-comm').innerText = `-₦${totalCommission.toLocaleString()}`;
+            document.getElementById('break-fuel').innerText = `-₦${totalFuelCost.toLocaleString()}`;
+            document.getElementById('break-net').innerText = `₦${netTripProfit.toLocaleString()}`;
 
             renderCharts(filteredTrips);
             renderRecentTrips();
             renderServiceStatus();
         }
 
-        // UPDATED: Explicitly shows that ALL km (Rider + Non-Rider) are used for the Odometer
         function renderServiceStatus() {
             const card = document.getElementById('service-status-card');
             if (!settings.startingOdometer && !settings.lastServiceOdometer) {
                 card.innerHTML = `<div style="text-align:center; color: var(--text-secondary); padding: 10px;">⚙️ Go to <strong>Insights</strong> to set your Odometer readings for service tracking.</div>`;
                 return;
             }
-            
-            // This calculation sums EVERY trip logged, regardless of whether a fare was paid or not.
             const allTimeKmDriven = trips.reduce((sum, t) => sum + t.km, 0);
             const currentOdo = settings.startingOdometer + allTimeKmDriven;
             const kmSinceService = currentOdo - settings.lastServiceOdometer;
@@ -697,7 +734,7 @@
                 type: 'bar',
                 data: {
                     labels: Object.keys(profitByDate).map(d => new Date(d).toLocaleDateString('en-US', {day:'numeric', month:'short'})),
-                    datasets: [{ label: 'Gross Profit', data: Object.values(profitByDate), backgroundColor: 'rgba(16, 185, 129, 0.6)', borderColor: '#10b981', borderWidth: 1, borderRadius: 6 }]
+                    datasets: [{ label: 'Net Trip Profit', data: Object.values(profitByDate), backgroundColor: 'rgba(16, 185, 129, 0.6)', borderColor: '#10b981', borderWidth: 1, borderRadius: 6 }]
                 },
                 options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } }
             });
