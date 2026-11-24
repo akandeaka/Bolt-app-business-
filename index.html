@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -105,6 +104,9 @@
                 <input type="date" id="custom-end-date" class="form-input" style="padding: 8px; font-size: 14px;">
                 <button class="filter-btn active" onclick="applyCustomDate()">Apply</button>
             </div>
+
+            <!-- SMART SHIFT ADVICE CARD -->
+            <div class="glass-card" style="margin-bottom: 15px; border-left: 4px solid var(--accent-orange);" id="smart-advice-card"></div>
 
             <div class="stat-grid">
                 <div class="stat-card"><div class="stat-label">Net Trip Profit</div><div class="stat-value green" id="stat-profit">₦0</div></div>
@@ -264,7 +266,6 @@
 
     <script>
         // --- DEEP DATA RECOVERY SCRIPT ---
-        // This checks all previous versions (v1 to v8) and restores the data to v9.
         (function() {
             if (!localStorage.getItem('bolt_trips_v9')) {
                 for (let i = 8; i >= 1; i--) {
@@ -282,7 +283,6 @@
             }
         })();
 
-        // --- CAR DATABASE ---
         const carDatabase = {
             'vw_polo': { efficiency: 11, capacity: 45, name: 'VW Polo 1.4 MPI' },
             'toyota_corolla': { efficiency: 10, capacity: 50, name: 'Toyota Corolla' },
@@ -357,7 +357,6 @@
             alert('Car specs and target updated successfully!');
         }
 
-        // --- GPS TRACKING ---
         function startGPSTracking() {
             if (!navigator.geolocation) { alert("Your browser does not support GPS tracking."); return; }
             navigator.geolocation.getCurrentPosition((position) => {
@@ -397,7 +396,6 @@
         }
         function deg2rad(deg) { return deg * (Math.PI/180); }
 
-        // --- FORM SUBMISSIONS ---
         document.getElementById('tripForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const editId = document.getElementById('edit-trip-id').value;
@@ -445,7 +443,6 @@
             container.innerHTML = sorted.map(exp => `<div class="history-item"><div class="history-info"><div class="history-title">${exp.type}</div><div class="history-sub">${new Date(exp.date).toLocaleDateString()} • ₦${exp.cost.toLocaleString()} ${exp.desc ? '• ' + exp.desc : ''}</div></div><div class="history-actions"><button class="icon-btn edit" onclick="editExpense('${exp.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button><button class="icon-btn delete" onclick="deleteExpense('${exp.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></div></div>`).join('');
         }
 
-        // --- FILTERS ---
         function setFilter(filter, el) {
             currentFilter = filter; customStartDate = null; customEndDate = null;
             document.getElementById('custom-date-container').classList.remove('show');
@@ -492,7 +489,6 @@
             });
         }
 
-        // --- DASHBOARD UPDATE ---
         function updateDashboard() {
             const filteredTrips = getFilteredTrips();
             const filteredExpenses = getFilteredExpenses();
@@ -532,6 +528,23 @@
             document.getElementById('break-comm').innerText = `-₦${totalCommission.toLocaleString()}`;
             document.getElementById('break-fuel').innerText = `-₦${totalFuelCost.toLocaleString()}`;
             document.getElementById('break-net').innerText = `₦${trueNetProfit.toLocaleString()}`;
+
+            // SMART SHIFT ADVICE LOGIC
+            const adviceCard = document.getElementById('smart-advice-card');
+            const deadKmTrips = filteredTrips.filter(t => t.fare === 0).reduce((sum, t) => sum + t.km, 0);
+            
+            if (trueNetProfit >= settings.dailyTarget) {
+                adviceCard.innerHTML = `<div style="display:flex; gap:12px; align-items:center;"><div style="font-size:24px;">🎉</div><div><div class="insight-title" style="color:var(--accent-green);">Target Achieved!</div><div class="insight-text">You've hit your daily profit goal. Consider ending your shift to avoid unnecessary wear and fuel burn.</div></div></div>`;
+                adviceCard.style.borderLeftColor = 'var(--accent-green)';
+            } else if (deadKmTrips > 15 && periodFuelBalance < 0) {
+                adviceCard.innerHTML = `<div style="display:flex; gap:12px; align-items:center;"><div style="font-size:24px;">⚠️</div><div><div class="insight-title" style="color:var(--accent-red);">Fuel Burn Warning</div><div class="insight-text">You've driven ${deadKmTrips}km with no riders and your daily fuel balance is negative. Continuing to chase riders may result in a net loss. Consider going home.</div></div></div>`;
+                adviceCard.style.borderLeftColor = 'var(--accent-red)';
+            } else if (deadKmTrips > 10) {
+                adviceCard.innerHTML = `<div style="display:flex; gap:12px; align-items:center;"><div style="font-size:24px;">💡</div><div><div class="insight-title" style="color:var(--accent-orange);">Low Demand Detected</div><div class="insight-text">You've driven ${deadKmTrips}km without a rider. If this continues, you will burn more fuel than you earn. Consider relocating to a hotter zone or ending the shift.</div></div></div>`;
+                adviceCard.style.borderLeftColor = 'var(--accent-orange)';
+            } else {
+                adviceCard.style.display = 'none';
+            }
 
             renderCharts(filteredTrips, filteredExpenses, totalFares, totalCommission, totalFuelCost, totalOtherExpenses);
             renderRecentTrips();
@@ -577,7 +590,6 @@
             container.innerHTML = sorted.map(trip => `<div class="history-item"><div class="history-info"><div class="history-title">${trip.pickup || trip.location} ➔ ${trip.dropoff || trip.location} ${trip.fare === 0 ? '<span style="color:var(--accent-red); font-size:10px;">(NO RIDER)</span>' : ''}</div><div class="history-sub">${new Date(trip.date).toLocaleDateString()} ${trip.time ? 'at '+trip.time : ''} • ${trip.km}km • ₦${trip.profit.toLocaleString()} profit</div></div><div class="history-actions"><button class="icon-btn edit" onclick="editTrip('${trip.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button><button class="icon-btn delete" onclick="deleteTrip('${trip.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></div></div>`).join('');
         }
 
-        // --- INSIGHTS LOGIC ---
         function updateInsights() {
             const container = document.getElementById('insights-content');
             if (trips.length === 0) { container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">Log trips to generate insights.</p>'; return; }
