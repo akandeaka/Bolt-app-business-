@@ -4,163 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Bolt Profit Tracker - Akinex</title>
-    
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
-    
     <link rel="manifest" href='data:application/manifest+json,{"name":"Bolt Tracker","short_name":"BoltTrack","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#10b981","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%2310b981%22/%3E%3Ctext x=%2250%22 y=%2265%22 font-size=%2250%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Arial%22 font-weight=%22bold%22%3E%F0%9F%9A%97%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}'>
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-primary: #0f172a;
-            --bg-card: rgba(30, 41, 59, 0.6);
-            --border-glass: rgba(255, 255, 255, 0.08);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --accent-green: #10b981;
-            --accent-blue: #3b82f6;
-            --accent-orange: #f59e0b;
-            --accent-red: #ef4444;
-            --accent-purple: #8b5cf6;
+            --bg-primary: #0f172a; --bg-card: rgba(30, 41, 59, 0.6); --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc; --text-secondary: #94a3b8; --accent-green: #10b981; --accent-blue: #3b82f6;
+            --accent-orange: #f59e0b; --accent-red: #ef4444; --accent-purple: #8b5cf6;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.1) 0px, transparent 50%),
-                radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden;
+            background-image: radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.1) 0px, transparent 50%);
             padding-bottom: 90px;
         }
-
-        .watermark {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-20deg);
-            font-size: 80px; font-weight: 900; color: rgba(255, 255, 255, 0.06);
-            pointer-events: none; z-index: 0; white-space: nowrap; letter-spacing: 10px;
-            text-transform: uppercase; font-family: 'Segoe UI', sans-serif;
-        }
-
-        .glass-card {
-            background: var(--bg-card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border-glass); border-radius: 20px; padding: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2); position: relative; z-index: 1;
-        }
-
+        .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-20deg); font-size: 80px; font-weight: 900; color: rgba(255, 255, 255, 0.04); pointer-events: none; z-index: 0; white-space: nowrap; letter-spacing: 10px; text-transform: uppercase; }
+        .glass-card { background: var(--bg-card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border-glass); border-radius: 20px; padding: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2); position: relative; z-index: 1; margin-bottom: 15px; }
         .top-header { padding: 20px 20px 10px; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
         .top-header h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
         .top-header span { color: var(--accent-green); }
-
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px);
-            border-top: 1px solid var(--border-glass);
-            display: flex; justify-content: space-around;
-            padding: 10px 0; padding-bottom: calc(10px + env(safe-area-inset-bottom));
-            z-index: 100;
-        }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border-top: 1px solid var(--border-glass); display: flex; justify-content: space-around; padding: 10px 0; padding-bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-secondary); font-size: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; width: 25%; }
         .nav-item.active { color: var(--accent-green); }
         .nav-item svg { width: 22px; height: 22px; margin-bottom: 4px; }
-
-        .filter-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 10px 20px; margin: 0 -20px; scrollbar-width: none; position: relative; z-index: 1;}
+        .filter-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 10px 20px; margin: 0 -20px; scrollbar-width: none; position: relative; z-index: 1; flex-wrap: wrap;}
         .filter-scroll::-webkit-scrollbar { display: none; }
         .filter-btn { padding: 8px 16px; border-radius: 50px; background: rgba(255,255,255,0.05); color: var(--text-secondary); font-size: 13px; font-weight: 600; white-space: nowrap; border: 1px solid transparent; cursor: pointer; }
         .filter-btn.active { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); border-color: rgba(16, 185, 129, 0.3); }
-
+        .custom-date-filter { display: none; gap: 10px; align-items: center; margin-top: 10px; padding: 0 20px; }
+        .custom-date-filter.show { display: flex; }
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; position: relative; z-index: 1;}
         .stat-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: 16px; padding: 15px; }
         .stat-card.full { grid-column: span 2; }
         .stat-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;}
         .stat-value { font-size: 20px; font-weight: 800; }
-        .stat-value.green { color: var(--accent-green); }
-        .stat-value.blue { color: var(--accent-blue); }
-        .stat-value.orange { color: var(--accent-orange); }
-        .stat-value.red { color: var(--accent-red); }
-        .stat-value.purple { color: var(--accent-purple); }
-
-        .chart-container { margin-top: 20px; background: rgba(255,255,255,0.02); border-radius: 16px; padding: 15px; border: 1px solid var(--border-glass); position: relative; z-index: 1;}
+        .stat-value.green { color: var(--accent-green); } .stat-value.blue { color: var(--accent-blue); } .stat-value.orange { color: var(--accent-orange); } .stat-value.red { color: var(--accent-red); } .stat-value.purple { color: var(--accent-purple); }
+        .chart-container { margin-top: 15px; background: rgba(255,255,255,0.02); border-radius: 16px; padding: 15px; border: 1px solid var(--border-glass); position: relative; z-index: 1;}
         .chart-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--text-secondary);}
-
         .form-group { margin-bottom: 16px; }
         .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
         .form-input { width: 100%; padding: 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 12px; color: var(--text-primary); font-size: 16px; outline: none; transition: 0.2s; }
         .form-input:focus { border-color: var(--accent-green); background: rgba(0,0,0,0.3); }
-        .form-hint { font-size: 11px; color: var(--accent-orange); margin-top: 4px; font-style: italic;}
-        
         .btn-primary { width: 100%; padding: 16px; background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 16px; font-weight: 700; border: none; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); margin-top: 10px; }
         .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
-        .btn-small { padding: 8px 12px; font-size: 12px; width: auto; margin-top: 0; }
-        .btn-gps-start { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
-        .btn-gps-stop { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
-
         .history-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1;}
-        .history-info { flex: 1; }
-        .history-title { font-weight: 700; font-size: 14px; }
-        .history-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
-        .history-actions { display: flex; gap: 10px; }
+        .history-info { flex: 1; } .history-title { font-weight: 700; font-size: 14px; } .history-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; } .history-actions { display: flex; gap: 10px; }
         .icon-btn { background: rgba(255,255,255,0.05); border: none; color: var(--text-secondary); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .icon-btn.edit { color: var(--accent-blue); }
-        .icon-btn.delete { color: var(--accent-red); }
-        .icon-btn svg { width: 16px; height: 16px; }
-
+        .icon-btn.edit { color: var(--accent-blue); } .icon-btn.delete { color: var(--accent-red); }
         .insight-card { background: rgba(255,255,255,0.03); border-left: 4px solid var(--accent-green); padding: 15px; border-radius: 0 12px 12px 0; margin-bottom: 12px; position: relative; z-index: 1;}
-        .insight-card.blue { border-left-color: var(--accent-blue); }
-        .insight-card.orange { border-left-color: var(--accent-orange); }
-        .insight-card.red { border-left-color: var(--accent-red); }
-        .insight-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
-        .insight-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
-
-        .page { display: none; padding: 0 20px 20px; animation: fadeIn 0.3s ease; }
-        .page.active { display: block; }
+        .insight-card.blue { border-left-color: var(--accent-blue); } .insight-card.orange { border-left-color: var(--accent-orange); }
+        .insight-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; } .insight-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+        .page { display: none; padding: 0 20px 20px; animation: fadeIn 0.3s ease; } .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
         .section-title { font-size: 18px; font-weight: 800; margin: 20px 0 15px; position: relative; z-index: 1;}
-        
-        .footer-brand {
-            text-align: center; padding: 20px 0 10px; color: rgba(255,255,255,0.4);
-            font-size: 11px; letter-spacing: 1.5px; font-weight: 700; position: relative; z-index: 1;
-        }
-
+        .footer-brand { text-align: center; padding: 20px 0 10px; color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1.5px; font-weight: 700; position: relative; z-index: 1; }
         .breakdown-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
-        .breakdown-label { color: var(--text-secondary); }
-        .breakdown-value { font-weight: 700; }
+        .breakdown-label { color: var(--text-secondary); } .breakdown-value { font-weight: 700; }
         .breakdown-divider { border-top: 1px dashed var(--border-glass); margin: 15px 0; }
         .breakdown-total { font-size: 16px; font-weight: 800; }
-
-        .progress-container { background: rgba(255,255,255,0.1); border-radius: 10px; height: 12px; width: 100%; margin-top: 8px; overflow: hidden; }
-        .progress-bar { height: 100%; border-radius: 10px; transition: width 0.5s ease; }
-        .progress-bar.green { background: linear-gradient(90deg, #10b981, #34d399); }
-        .progress-bar.orange { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-        .progress-bar.red { background: linear-gradient(90deg, #ef4444, #f87171); }
-
         .gps-status { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid var(--border-glass); }
         .gps-indicator { width: 12px; height: 12px; border-radius: 50%; background: var(--text-secondary); margin-right: 10px; }
         .gps-indicator.live { background: var(--accent-red); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-        .gps-text { font-size: 14px; font-weight: 600; }
         .gps-distance { font-size: 24px; font-weight: 800; color: var(--accent-blue); text-align: center; margin: 10px 0; }
+        .form-hint { font-size: 11px; color: var(--accent-orange); margin-top: 4px; font-style: italic;}
+        
+        /* Fuel Gauge Styles */
+        .fuel-gauge-container { background: rgba(255,255,255,0.05); border-radius: 10px; height: 16px; width: 100%; margin-top: 10px; overflow: hidden; position: relative; }
+        .fuel-gauge-bar { height: 100%; border-radius: 10px; transition: width 0.5s ease, background 0.5s ease; }
+        .fuel-markers { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-secondary); margin-top: 5px; }
     </style>
 </head>
 <body>
-
     <div class="watermark">AKINEX</div>
-
     <div class="top-header">
         <div style="display:flex; align-items:center; gap:10px;">
             <img src="logo.png" alt="Akinex" style="height: 35px; width: auto;" onerror="this.style.display='none'; document.getElementById('text-logo').style.display='block';">
             <h1 id="text-logo" style="display:none;">AKINEX<span>TECH</span></h1>
         </div>
-        <div style="font-size: 12px; color: var(--text-secondary);">VW Polo 1.4 MPI</div>
+        <div style="font-size: 12px; color: var(--text-secondary);" id="header-car-model">Bolt Tracker</div>
     </div>
 
     <main>
@@ -172,66 +98,59 @@
                 <button class="filter-btn" onclick="setFilter('month', this)">Month</button>
                 <button class="filter-btn" onclick="setFilter('quarter', this)">Quarter</button>
                 <button class="filter-btn" onclick="setFilter('year', this)">Year</button>
+                <button class="filter-btn" onclick="toggleCustomDate(this)">Custom</button>
             </div>
-
-            <div class="glass-card" style="margin-bottom: 15px; border-left: 4px solid var(--accent-orange);" id="smart-advice-card"></div>
+            <div class="custom-date-filter" id="custom-date-container">
+                <input type="date" id="custom-start-date" class="form-input" style="padding: 8px; font-size: 14px;">
+                <span style="color: var(--text-secondary);">to</span>
+                <input type="date" id="custom-end-date" class="form-input" style="padding: 8px; font-size: 14px;">
+                <button class="filter-btn active" onclick="applyCustomDate()">Apply</button>
+            </div>
 
             <div class="stat-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Net Trip Profit</div>
-                    <div class="stat-value green" id="stat-profit">₦0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Total Fares Collected</div>
-                    <div class="stat-value blue" id="stat-fares">₦0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Total Km (Rider + Non-Rider)</div>
-                    <div class="stat-value orange" id="stat-km">0 km</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Period Fuel Balance</div>
-                    <div class="stat-value purple" id="stat-period-fuel">0.0 L</div>
-                </div>
+                <div class="stat-card"><div class="stat-label">Net Trip Profit</div><div class="stat-value green" id="stat-profit">₦0</div></div>
+                <div class="stat-card"><div class="stat-label">Total Fares Collected</div><div class="stat-value blue" id="stat-fares">₦0</div></div>
+                <div class="stat-card"><div class="stat-label">Total Km Driven</div><div class="stat-value orange" id="stat-km">0 km</div></div>
+                <div class="stat-card"><div class="stat-label">Period Fuel Balance</div><div class="stat-value purple" id="stat-period-fuel">0.0 L</div></div>
+                
+                <!-- NEW: VISUAL FUEL GAUGE -->
                 <div class="stat-card full">
-                    <div class="stat-label">Actual Estimated Fuel in Tank (All-Time)</div>
+                    <div class="stat-label">Predicted Fuel Remaining in Tank</div>
                     <div class="stat-value orange" id="stat-fuel">0.0 L</div>
+                    <div class="fuel-gauge-container">
+                        <div class="fuel-gauge-bar" id="fuel-gauge-bar" style="width: 0%; background: var(--accent-green);"></div>
+                    </div>
+                    <div class="fuel-markers">
+                        <span>E (Empty)</span>
+                        <span>1/2</span>
+                        <span>F (Full)</span>
+                    </div>
+                    <div class="form-hint" style="text-align:center; margin-top:8px; color: var(--text-secondary);">
+                        Calculated from all fuel bought minus all km driven. Works perfectly even if you buy in small 10L chunks!
+                    </div>
                 </div>
             </div>
 
-            <div class="glass-card" style="margin-top: 20px;">
+            <div class="glass-card">
                 <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 15px; color: var(--text-primary);">📊 Daily Profit Breakdown</h3>
-                <div class="breakdown-row">
-                    <span class="breakdown-label">Total Amount Paid by Customers</span>
-                    <span class="breakdown-value" style="color: var(--accent-blue);" id="break-fares">₦0</span>
-                </div>
-                <div class="breakdown-row">
-                    <span class="breakdown-label">Less: Bolt Commission</span>
-                    <span class="breakdown-value" style="color: var(--accent-red);" id="break-comm">-₦0</span>
-                </div>
-                <div class="breakdown-row">
-                    <span class="breakdown-label">Less: Fuel Purchased</span>
-                    <span class="breakdown-value" style="color: var(--accent-red);" id="break-fuel">-₦0</span>
-                </div>
+                <div class="breakdown-row"><span class="breakdown-label">Total Amount Paid by Customers</span><span class="breakdown-value" style="color: var(--accent-blue);" id="break-fares">₦0</span></div>
+                <div class="breakdown-row"><span class="breakdown-label">Less: Bolt Commission</span><span class="breakdown-value" style="color: var(--accent-red);" id="break-comm">-₦0</span></div>
+                <div class="breakdown-row"><span class="breakdown-label">Less: Fuel Purchased</span><span class="breakdown-value" style="color: var(--accent-red);" id="break-fuel">-₦0</span></div>
                 <div class="breakdown-divider"></div>
-                <div class="breakdown-row breakdown-total">
-                    <span>= Net Trip Profit</span>
-                    <span style="color: var(--accent-green);" id="break-net">₦0</span>
-                </div>
+                <div class="breakdown-row breakdown-total"><span>= Net Trip Profit</span><span style="color: var(--accent-green);" id="break-net">₦0</span></div>
             </div>
 
-            <div class="glass-card" style="margin-top: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                    <h3 style="font-size: 16px; font-weight: 800;">🎯 Daily Target Progress</h3>
-                    <span style="font-size: 12px; color: var(--text-secondary);" id="target-text">0 / ₦0</span>
-                </div>
-                <div class="progress-container">
-                    <div class="progress-bar green" id="target-bar" style="width: 0%;"></div>
-                </div>
+            <div class="chart-container">
+                <div class="chart-title">Income vs. Expenses Breakdown</div>
+                <canvas id="incomeExpenseChart" height="200"></canvas>
             </div>
-
-            <div class="glass-card" style="margin-top: 20px;" id="service-status-card">
-                <div style="text-align:center; color: var(--text-secondary); padding: 10px;">⚙️ Go to <strong>Insights</strong> to set your Odometer & Documents.</div>
+            <div class="chart-container">
+                <div class="chart-title">Where Your Money Goes (Expense Pie)</div>
+                <canvas id="expensePieChart" height="200"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Profit Trend Over Time</div>
+                <canvas id="barChart" height="150"></canvas>
             </div>
 
             <h3 class="section-title">Recent Trips</h3>
@@ -242,85 +161,45 @@
         <div id="page-add" class="page">
             <div class="glass-card">
                 <h2 id="trip-form-title" style="font-size: 20px; font-weight: 800; margin-bottom: 20px;">Log Shift / Trip</h2>
-                
                 <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 16px; padding: 15px; margin-bottom: 20px;">
                     <h3 style="font-size: 14px; font-weight: 800; margin-bottom: 10px; color: var(--accent-blue);">📍 Live GPS Distance Tracker</h3>
                     <div class="gps-status">
-                        <div style="display:flex; align-items:center;">
-                            <div class="gps-indicator" id="gps-dot"></div>
-                            <span class="gps-text" id="gps-status-text">Ready to track</span>
-                        </div>
+                        <div style="display:flex; align-items:center;"><div class="gps-indicator" id="gps-dot"></div><span class="gps-text" id="gps-status-text">Ready to track</span></div>
                     </div>
                     <div class="gps-distance" id="gps-live-km">0.00 km</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <button type="button" class="btn-primary btn-gps-start" id="btn-start-gps" onclick="startGPSTracking()">Start Tracking</button>
-                        <button type="button" class="btn-primary btn-gps-stop" id="btn-stop-gps" onclick="stopGPSTracking()" disabled style="opacity: 0.5;">Stop & Fill</button>
+                        <button type="button" class="btn-primary" id="btn-start-gps" onclick="startGPSTracking()" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">Start Tracking</button>
+                        <button type="button" class="btn-primary btn-danger" id="btn-stop-gps" onclick="stopGPSTracking()" disabled style="opacity: 0.5;">Stop & Fill</button>
                     </div>
-                    <div class="form-hint" style="text-align:center; margin-top:10px; color: var(--text-secondary);">
-                        Keep screen on while driving. Distance will auto-fill the form below.
-                    </div>
+                    <div class="form-hint" style="text-align:center; margin-top:10px; color: var(--text-secondary);">⚠️ Keep app open. Browsers pause GPS if you switch to the Bolt app.</div>
                 </div>
 
                 <form id="tripForm">
                     <input type="hidden" id="edit-trip-id">
-                    <div class="form-group">
-                        <label class="form-label">Date</label>
-                        <input type="date" id="input-date" required class="form-input">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group"><label class="form-label">Date</label><input type="date" id="input-date" required class="form-input"></div>
+                        <div class="form-group"><label class="form-label">Time of Trip</label><input type="time" id="input-time" required class="form-input"></div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Location (Jos)</label>
-                        <select id="input-location" required class="form-input">
-                            <optgroup label="Central / North Jos">
-                                <option value="Terminus">City Centre (Terminus)</option>
-                                <option value="Ahmadu Bello Way">Ahmadu Bello Way</option>
-                                <option value="Zaria Road">Zaria Road</option>
-                                <option value="Farin Gada">Farin Gada</option>
-                                <option value="Stadium">Ahmadu Bello Stadium</option>
-                                <option value="Naraguta">Naraguta</option>
-                            </optgroup>
-                            <optgroup label="South / East Jos">
-                                <option value="Rayfield">Rayfield</option>
-                                <option value="Bukuru">Bukuru</option>
-                                <option value="Bauchi Road">Bauchi Road</option>
-                                <option value="Alanamu">Alanamu</option>
-                                <option value="Federal Low Cost">Federal Low Cost</option>
-                                <option value="Rantiya">Rantiya</option>
-                                <option value="Old Airport">Old Airport</option>
-                                <option value="Tudun Wada">Tudun Wada</option>
-                                <option value="Angwan Rogo">Angwan Rogo</option>
-                                <option value="Ungwan Rimi">Ungwan Rimi</option>
-                                <option value="Shere Hills">Shere Hills</option>
-                                <option value="Bowde">Bowde</option>
-                                <option value="Ganawuri">Ganawuri</option>
-                            </optgroup>
-                            <option value="Other">Other</option>
+                        <label class="form-label">Pickup Location</label>
+                        <select id="input-pickup" required class="form-input">
+                            <option value="Terminus">City Centre (Terminus)</option><option value="Ahmadu Bello Way">Ahmadu Bello Way</option><option value="Zaria Road">Zaria Road</option><option value="Farin Gada">Farin Gada</option><option value="Stadium">Ahmadu Bello Stadium</option><option value="Naraguta">Naraguta</option><option value="Rayfield">Rayfield</option><option value="Bukuru">Bukuru</option><option value="Bauchi Road">Bauchi Road</option><option value="Alanamu">Alanamu</option><option value="Federal Low Cost">Federal Low Cost</option><option value="Rantiya">Rantiya</option><option value="Old Airport">Old Airport</option><option value="Tudun Wada">Tudun Wada</option><option value="Angwan Rogo">Angwan Rogo</option><option value="Ungwan Rimi">Ungwan Rimi</option><option value="Shere Hills">Shere Hills</option><option value="Bowde">Bowde</option><option value="Ganawuri">Ganawuri</option><option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Drop-off Location</label>
+                        <select id="input-dropoff" required class="form-input">
+                            <option value="Terminus">City Centre (Terminus)</option><option value="Ahmadu Bello Way">Ahmadu Bello Way</option><option value="Zaria Road">Zaria Road</option><option value="Farin Gada">Farin Gada</option><option value="Stadium">Ahmadu Bello Stadium</option><option value="Naraguta">Naraguta</option><option value="Rayfield">Rayfield</option><option value="Bukuru">Bukuru</option><option value="Bauchi Road">Bauchi Road</option><option value="Alanamu">Alanamu</option><option value="Federal Low Cost">Federal Low Cost</option><option value="Rantiya">Rantiya</option><option value="Old Airport">Old Airport</option><option value="Tudun Wada">Tudun Wada</option><option value="Angwan Rogo">Angwan Rogo</option><option value="Ungwan Rimi">Ungwan Rimi</option><option value="Shere Hills">Shere Hills</option><option value="Bowde">Bowde</option><option value="Ganawuri">Ganawuri</option><option value="Other">Other</option>
                         </select>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                        <div class="form-group">
-                            <label class="form-label">Total Km Driven</label>
-                            <input type="number" step="0.1" id="input-km" required class="form-input" placeholder="Auto-filled by GPS">
-                            <div class="form-hint">⚠️ Include ALL km (Rider + Non-Rider).</div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Fuel Bought (L)</label>
-                            <input type="number" step="0.1" id="input-fuel-liters" required class="form-input" placeholder="e.g. 5">
-                            <div class="form-hint">Enter 0 if none.</div>
-                        </div>
+                        <div class="form-group"><label class="form-label">Total Km Driven</label><input type="number" step="0.1" id="input-km" required class="form-input" placeholder="Auto-filled by GPS"></div>
+                        <div class="form-group"><label class="form-label">Fuel Bought (L)</label><input type="number" step="0.1" id="input-fuel-liters" required class="form-input" placeholder="e.g. 10"></div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Cost of Fuel (₦)</label>
-                        <input type="number" id="input-fuel-cost" required class="form-input" placeholder="e.g. 3500">
-                    </div>
+                    <div class="form-group"><label class="form-label">Cost of Fuel (₦)</label><input type="number" id="input-fuel-cost" required class="form-input" placeholder="e.g. 15000"></div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                        <div class="form-group">
-                            <label class="form-label">Fare Paid by Customer (₦)</label>
-                            <input type="number" id="input-fare" required class="form-input" placeholder="0 if no rider">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Bolt Comm. (₦)</label>
-                            <input type="number" id="input-commission" required class="form-input" placeholder="0 if no rider">
-                        </div>
+                        <div class="form-group"><label class="form-label">Fare Paid by Customer (₦)</label><input type="number" id="input-fare" required class="form-input" placeholder="0 if no rider"></div>
+                        <div class="form-group"><label class="form-label">Bolt Comm. (₦)</label><input type="number" id="input-commission" required class="form-input" placeholder="0 if no rider"></div>
                     </div>
                     <button type="submit" class="btn-primary" id="trip-submit-btn">Save Trip Data</button>
                     <button type="button" class="btn-primary btn-danger" id="cancel-edit-btn" style="display:none;" onclick="cancelEdit()">Cancel Edit</button>
@@ -334,29 +213,15 @@
                 <h2 id="expense-form-title" style="font-size: 20px; font-weight: 800; margin-bottom: 20px;">Log Vehicle Expense</h2>
                 <form id="expenseForm">
                     <input type="hidden" id="edit-expense-id">
-                    <div class="form-group">
-                        <label class="form-label">Date</label>
-                        <input type="date" id="expense-date" required class="form-input">
-                    </div>
+                    <div class="form-group"><label class="form-label">Date</label><input type="date" id="expense-date" required class="form-input"></div>
                     <div class="form-group">
                         <label class="form-label">Expense Type</label>
                         <select id="expense-type" required class="form-input">
-                            <option value="Car Repair (Breakdown)">Car Repair (Breakdown)</option>
-                            <option value="Vehicle Particulars/Renewal">Vehicle Particulars/Renewal</option>
-                            <option value="Oil Change / Servicing">Oil Change / Servicing</option>
-                            <option value="Tire Replacement">Tire Replacement</option>
-                            <option value="Car Wash / Cleaning">Car Wash / Cleaning</option>
-                            <option value="Other">Other</option>
+                            <option value="Car Repair (Breakdown)">Car Repair (Breakdown)</option><option value="Vehicle Particulars/Renewal">Vehicle Particulars/Renewal</option><option value="Oil Change / Servicing">Oil Change / Servicing</option><option value="Tire Replacement">Tire Replacement</option><option value="Car Wash / Cleaning">Car Wash / Cleaning</option><option value="Police/FRSC Settlement">Police/FRSC Settlement</option><option value="Food & Water">Food & Water</option><option value="Other">Other</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Amount (₦)</label>
-                        <input type="number" id="expense-cost" required class="form-input" placeholder="e.g. 15000">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Brief Description (Optional)</label>
-                        <input type="text" id="expense-desc" class="form-input" placeholder="e.g. Replaced brake pads">
-                    </div>
+                    <div class="form-group"><label class="form-label">Amount (₦)</label><input type="number" id="expense-cost" required class="form-input" placeholder="e.g. 15000"></div>
+                    <div class="form-group"><label class="form-label">Brief Description (Optional)</label><input type="text" id="expense-desc" class="form-input" placeholder="e.g. Replaced brake pads"></div>
                     <button type="submit" class="btn-primary" id="expense-submit-btn">Save Expense</button>
                     <button type="button" class="btn-primary btn-danger" id="cancel-expense-edit-btn" style="display:none;" onclick="cancelExpenseEdit()">Cancel Edit</button>
                 </form>
@@ -369,445 +234,244 @@
         <div id="page-insights" class="page">
             <div class="glass-card" style="margin-bottom: 20px;">
                 <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 5px;">Vehicle Setup</h2>
-                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 15px;">VW Polo 1.4 MPI (1990-2000 Era)</p>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <div class="form-group" style="margin:0">
-                        <label class="form-label">Efficiency (km/L)</label>
-                        <input type="number" step="0.1" id="setting-efficiency" class="form-input" placeholder="11">
-                    </div>
-                    <div class="form-group" style="margin:0">
-                        <label class="form-label">Daily Profit Target (₦)</label>
-                        <input type="number" id="setting-target" class="form-input" placeholder="15000">
-                    </div>
-                    <div class="form-group" style="margin:0">
-                        <label class="form-label">Current Odometer (km)</label>
-                        <input type="number" id="setting-start-odo" class="form-input" placeholder="150000">
-                    </div>
-                    <div class="form-group" style="margin:0">
-                        <label class="form-label">Last Serviced (km)</label>
-                        <input type="number" id="setting-last-serv" class="form-input" placeholder="145000">
-                    </div>
-                    <div class="form-group" style="margin:0; grid-column: span 2;">
-                        <label class="form-label">Service Interval (km)</label>
-                        <input type="number" id="setting-serv-interval" class="form-input" placeholder="10000">
-                    </div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 15px;">Select your car to auto-set fuel efficiency & tank size.</p>
+                
+                <!-- NEW: CAR MODEL SELECTOR -->
+                <div class="form-group">
+                    <label class="form-label">Select Car Model</label>
+                    <select id="setting-car-model" class="form-input" onchange="updateCarSpecs()">
+                        <option value="custom">Custom (Enter manually below)</option>
+                        <option value="vw_polo">VW Polo 1.4 MPI (2000-2010)</option>
+                        <option value="toyota_corolla">Toyota Corolla (2005-2015)</option>
+                        <option value="toyota_camry">Toyota Camry (2005-2015)</option>
+                        <option value="honda_civic">Honda Civic (2006-2015)</option>
+                        <option value="kia_picanto">Kia Picanto / Hyundai i10</option>
+                        <option value="hyundai_elantra">Hyundai Elantra</option>
+                        <option value="suzuki_swift">Suzuki Swift</option>
+                    </select>
                 </div>
-                <button onclick="saveSettings()" class="btn-primary" style="margin-top: 15px; background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);">Update Car Specs</button>
-            </div>
 
-            <div class="glass-card" style="margin-bottom: 20px;">
-                <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 15px;">📄 Document Expiry Tracker</h2>
-                <form id="docForm" style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
-                    <input type="text" id="doc-name" placeholder="e.g., Hackney Permit" required class="form-input" style="flex: 1; min-width: 120px;">
-                    <input type="date" id="doc-date" required class="form-input" style="flex: 1; min-width: 120px;">
-                    <button type="submit" class="btn-primary btn-small" style="flex: 0 0 auto;">Add</button>
-                </form>
-                <div id="doc-list"></div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="form-group" style="margin:0"><label class="form-label">Efficiency (km/L)</label><input type="number" step="0.1" id="setting-efficiency" class="form-input" placeholder="11"></div>
+                    <div class="form-group" style="margin:0"><label class="form-label">Tank Capacity (L)</label><input type="number" id="setting-capacity" class="form-input" placeholder="45"></div>
+                    <div class="form-group" style="margin:0"><label class="form-label">Daily Profit Target (₦)</label><input type="number" id="setting-target" class="form-input" placeholder="15000"></div>
+                    <div class="form-group" style="margin:0"><label class="form-label">Current Odometer (km)</label><input type="number" id="setting-start-odo" class="form-input" placeholder="150000"></div>
+                    <div class="form-group" style="margin:0"><label class="form-label">Last Serviced (km)</label><input type="number" id="setting-last-serv" class="form-input" placeholder="145000"></div>
+                    <div class="form-group" style="margin:0"><label class="form-label">Service Interval (km)</label><input type="number" id="setting-serv-interval" class="form-input" placeholder="10000"></div>
+                </div>
+                <button onclick="saveSettings()" class="btn-primary" style="margin-top: 15px; background: linear-gradient(135deg, #3b82f6, #2563eb);">Update Car Specs</button>
             </div>
 
             <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 15px; padding-left: 5px;">Business & Maintenance Insights</h2>
-            <div id="insights-content">
-                <p style="color: var(--text-secondary); text-align: center; padding: 20px;">Log trips to generate insights.</p>
-            </div>
+            <div id="insights-content"><p style="color: var(--text-secondary); text-align: center; padding: 20px;">Log trips to generate insights.</p></div>
         </div>
 
         <div class="footer-brand">POWERED BY AKINEX TECHNOLOGIES</div>
     </main>
 
     <nav class="bottom-nav">
-        <div class="nav-item active" onclick="showPage('dashboard', this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            Dashboard
-        </div>
-        <div class="nav-item" onclick="showPage('add', this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-            Add Trip
-        </div>
-        <div class="nav-item" onclick="showPage('expenses', this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
-            Expenses
-        </div>
-        <div class="nav-item" onclick="showPage('insights', this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-            Insights
-        </div>
+        <div class="nav-item active" onclick="showPage('dashboard', this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>Dashboard</div>
+        <div class="nav-item" onclick="showPage('add', this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>Add Trip</div>
+        <div class="nav-item" onclick="showPage('expenses', this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>Expenses</div>
+        <div class="nav-item" onclick="showPage('insights', this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Insights</div>
     </nav>
 
     <script>
         // --- AUTOMATIC DATA MIGRATION (PREVENTS DATA LOSS) ---
-        // This checks if you have data from the previous version (v6) and moves it to the new version (v7).
-        if (!localStorage.getItem('bolt_trips_v7') && localStorage.getItem('bolt_trips_v6')) {
-            localStorage.setItem('bolt_trips_v7', localStorage.getItem('bolt_trips_v6'));
-            localStorage.setItem('bolt_expenses_v7', localStorage.getItem('bolt_expenses_v6'));
-            localStorage.setItem('bolt_docs_v7', localStorage.getItem('bolt_docs_v6'));
-            localStorage.setItem('bolt_settings_v7', localStorage.getItem('bolt_settings_v6'));
-            console.log("Successfully migrated old data to new version!");
+        // This safely moves your data from v8 to v9.
+        if (!localStorage.getItem('bolt_trips_v9') && localStorage.getItem('bolt_trips_v8')) {
+            localStorage.setItem('bolt_trips_v9', localStorage.getItem('bolt_trips_v8'));
+            localStorage.setItem('bolt_expenses_v9', localStorage.getItem('bolt_expenses_v8'));
+            localStorage.setItem('bolt_settings_v9', localStorage.getItem('bolt_settings_v8'));
+            console.log("Data successfully migrated to v9!");
         }
 
-        // --- STATE & INIT ---
-        let trips = JSON.parse(localStorage.getItem('bolt_trips_v7')) || [];
-        let expenses = JSON.parse(localStorage.getItem('bolt_expenses_v7')) || [];
-        let documents = JSON.parse(localStorage.getItem('bolt_docs_v7')) || [];
+        // --- CAR DATABASE ---
+        const carDatabase = {
+            'vw_polo': { efficiency: 11, capacity: 45, name: 'VW Polo 1.4 MPI' },
+            'toyota_corolla': { efficiency: 10, capacity: 50, name: 'Toyota Corolla' },
+            'toyota_camry': { efficiency: 8.5, capacity: 70, name: 'Toyota Camry' },
+            'honda_civic': { efficiency: 11.5, capacity: 50, name: 'Honda Civic' },
+            'kia_picanto': { efficiency: 13, capacity: 35, name: 'Kia Picanto' },
+            'hyundai_elantra': { efficiency: 10.5, capacity: 50, name: 'Hyundai Elantra' },
+            'suzuki_swift': { efficiency: 14, capacity: 42, name: 'Suzuki Swift' }
+        };
+
+        let trips = JSON.parse(localStorage.getItem('bolt_trips_v9')) || [];
+        let expenses = JSON.parse(localStorage.getItem('bolt_expenses_v9')) || [];
+        let settings = JSON.parse(localStorage.getItem('bolt_settings_v9')) || {};
         
-        let settings = JSON.parse(localStorage.getItem('bolt_settings_v7')) || {};
+        // Apply defaults if missing
         settings.efficiency = settings.efficiency || 11; 
+        settings.capacity = settings.capacity || 45;
+        settings.carModel = settings.carModel || 'vw_polo';
         settings.dailyTarget = settings.dailyTarget || 15000;
-        settings.startingOdometer = settings.startingOdometer || 0;
+        settings.startingOdometer = settings.startingOdometer || 0; 
         settings.lastServiceOdometer = settings.lastServiceOdometer || 0;
         settings.serviceInterval = settings.serviceInterval || 10000; 
 
         let currentFilter = 'day';
-        let barChart, pieChart;
-
-        // GPS Tracker Variables
-        let gpsWatchId = null;
-        let gpsTotalDistance = 0;
-        let gpsLastPosition = null;
-        let gpsIsTracking = false;
+        let customStartDate = null, customEndDate = null;
+        let barChart, incomeExpenseChart, expensePieChart;
+        let gpsWatchId = null, gpsTotalDistance = 0, gpsLastPosition = null, gpsIsTracking = false;
 
         document.getElementById('input-date').valueAsDate = new Date();
         document.getElementById('expense-date').valueAsDate = new Date();
+        document.getElementById('input-time').value = new Date().toTimeString().substring(0,5);
         
-        document.getElementById('setting-efficiency').value = settings.efficiency;
+        // Populate settings
+        document.getElementById('setting-car-model').value = settings.carModel;
+        updateCarSpecs(); // Auto-fill based on selected car
         document.getElementById('setting-target').value = settings.dailyTarget;
         document.getElementById('setting-start-odo').value = settings.startingOdometer || '';
         document.getElementById('setting-last-serv').value = settings.lastServiceOdometer || '';
         document.getElementById('setting-serv-interval').value = settings.serviceInterval;
+        
+        // Update header with car name
+        const currentCarName = carDatabase[settings.carModel] ? carDatabase[settings.carModel].name : 'Bolt Tracker';
+        document.getElementById('header-car-model').innerText = currentCarName;
+
+        function updateCarSpecs() {
+            const selectedCar = document.getElementById('setting-car-model').value;
+            if (carDatabase[selectedCar]) {
+                document.getElementById('setting-efficiency').value = carDatabase[selectedCar].efficiency;
+                document.getElementById('setting-capacity').value = carDatabase[selectedCar].capacity;
+            }
+        }
 
         function showPage(pageId, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${pageId}`).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             if(el) el.classList.add('active');
-            
             if(pageId === 'dashboard') updateDashboard();
-            if(pageId === 'insights') { updateInsights(); renderDocuments(); }
+            if(pageId === 'insights') updateInsights();
             if(pageId === 'expenses') renderExpenses();
         }
 
         function saveSettings() {
+            settings.carModel = document.getElementById('setting-car-model').value;
             settings.efficiency = parseFloat(document.getElementById('setting-efficiency').value) || 11;
+            settings.capacity = parseFloat(document.getElementById('setting-capacity').value) || 45;
             settings.dailyTarget = parseFloat(document.getElementById('setting-target').value) || 15000;
             settings.startingOdometer = parseFloat(document.getElementById('setting-start-odo').value) || 0;
             settings.lastServiceOdometer = parseFloat(document.getElementById('setting-last-serv').value) || 0;
             settings.serviceInterval = parseFloat(document.getElementById('setting-serv-interval').value) || 10000;
             
-            localStorage.setItem('bolt_settings_v7', JSON.stringify(settings));
+            localStorage.setItem('bolt_settings_v9', JSON.stringify(settings));
+            
+            const currentCarName = carDatabase[settings.carModel] ? carDatabase[settings.carModel].name : 'Bolt Tracker';
+            document.getElementById('header-car-model').innerText = currentCarName;
+            
             alert('Car specs and target updated successfully!');
-            renderServiceStatus();
         }
 
-        // --- GPS TRACKING LOGIC ---
+        // --- GPS TRACKING ---
         function startGPSTracking() {
-            if (!navigator.geolocation) {
-                alert("Your browser does not support GPS tracking.");
-                return;
-            }
-
+            if (!navigator.geolocation) { alert("Your browser does not support GPS tracking."); return; }
             navigator.geolocation.getCurrentPosition((position) => {
-                gpsIsTracking = true;
-                gpsTotalDistance = 0;
-                gpsLastPosition = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                };
-
+                gpsIsTracking = true; gpsTotalDistance = 0;
+                gpsLastPosition = { lat: position.coords.latitude, lng: position.coords.longitude };
                 document.getElementById('gps-dot').classList.add('live');
                 document.getElementById('gps-status-text').innerText = "Tracking Live...";
-                document.getElementById('gps-status-text').style.color = "var(--accent-red)";
-                document.getElementById('btn-start-gps').disabled = true;
-                document.getElementById('btn-start-gps').style.opacity = "0.5";
-                document.getElementById('btn-stop-gps').disabled = false;
-                document.getElementById('btn-stop-gps').style.opacity = "1";
-
-                gpsWatchId = navigator.geolocation.watchPosition(handleGPSUpdate, handleGPSError, {
-                    enableHighAccuracy: true,
-                    maximumAge: 0,
-                    timeout: 10000
-                });
-            }, (error) => {
-                alert("Please allow Location Access to use GPS tracking.");
-            }, { enableHighAccuracy: true });
+                document.getElementById('btn-start-gps').disabled = true; document.getElementById('btn-start-gps').style.opacity = "0.5";
+                document.getElementById('btn-stop-gps').disabled = false; document.getElementById('btn-stop-gps').style.opacity = "1";
+                gpsWatchId = navigator.geolocation.watchPosition(handleGPSUpdate, handleGPSError, { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 });
+            }, (error) => { alert("Please allow Location Access to use GPS tracking."); }, { enableHighAccuracy: true });
         }
-
         function handleGPSUpdate(position) {
             if (!gpsIsTracking) return;
-
-            const currentPos = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-            };
-
+            const currentPos = { lat: position.coords.latitude, lng: position.coords.longitude };
             if (position.coords.accuracy > 30) return;
-
             if (gpsLastPosition) {
-                const distance = calculateDistance(
-                    gpsLastPosition.lat, gpsLastPosition.lng,
-                    currentPos.lat, currentPos.lng
-                );
-
-                if (distance > 0.005) { 
-                    gpsTotalDistance += distance;
-                    document.getElementById('gps-live-km').innerText = gpsTotalDistance.toFixed(2) + " km";
-                }
+                const distance = calculateDistance(gpsLastPosition.lat, gpsLastPosition.lng, currentPos.lat, currentPos.lng);
+                if (distance > 0.005) { gpsTotalDistance += distance; document.getElementById('gps-live-km').innerText = gpsTotalDistance.toFixed(2) + " km"; }
             }
             gpsLastPosition = currentPos;
         }
-
-        function handleGPSError(error) {
-            console.error("GPS Error:", error);
-            document.getElementById('gps-status-text').innerText = "GPS Signal Lost";
-            document.getElementById('gps-status-text').style.color = "var(--accent-orange)";
-        }
-
+        function handleGPSError(error) { document.getElementById('gps-status-text').innerText = "GPS Signal Lost"; }
         function stopGPSTracking() {
-            if (gpsWatchId !== null) {
-                navigator.geolocation.clearWatch(gpsWatchId);
-            }
-            gpsIsTracking = false;
-            gpsLastPosition = null;
-
+            if (gpsWatchId !== null) navigator.geolocation.clearWatch(gpsWatchId);
+            gpsIsTracking = false; gpsLastPosition = null;
             document.getElementById('gps-dot').classList.remove('live');
             document.getElementById('gps-status-text').innerText = "Tracking Stopped";
-            document.getElementById('gps-status-text').style.color = "var(--text-secondary)";
-            document.getElementById('btn-start-gps').disabled = false;
-            document.getElementById('btn-start-gps').style.opacity = "1";
-            document.getElementById('btn-stop-gps').disabled = true;
-            document.getElementById('btn-stop-gps').style.opacity = "0.5";
-
-            if (gpsTotalDistance > 0) {
-                document.getElementById('input-km').value = gpsTotalDistance.toFixed(1);
-                gpsTotalDistance = 0;
-                document.getElementById('gps-live-km').innerText = "0.00 km";
-            }
+            document.getElementById('btn-start-gps').disabled = false; document.getElementById('btn-start-gps').style.opacity = "1";
+            document.getElementById('btn-stop-gps').disabled = true; document.getElementById('btn-stop-gps').style.opacity = "0.5";
+            if (gpsTotalDistance > 0) { document.getElementById('input-km').value = gpsTotalDistance.toFixed(1); gpsTotalDistance = 0; document.getElementById('gps-live-km').innerText = "0.00 km"; }
         }
-
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; 
-            const dLat = deg2rad(lat2 - lat1);
-            const dLon = deg2rad(lon2 - lon1);
-            const a =
-                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            const d = R * c; 
-            return d;
+            const R = 6371; const dLat = deg2rad(lat2 - lat1); const dLon = deg2rad(lon2 - lon1);
+            const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(deg2rad(lat1))*Math.cos(deg2rad(lat2))*Math.sin(dLon/2)*Math.sin(dLon/2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
+        function deg2rad(deg) { return deg * (Math.PI/180); }
 
-        function deg2rad(deg) {
-            return deg * (Math.PI / 180);
-        }
-
-        // --- TRIP LOGIC ---
+        // --- FORM SUBMISSIONS ---
         document.getElementById('tripForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const editId = document.getElementById('edit-trip-id').value;
             const tripData = {
-                id: editId || Date.now().toString(),
-                date: document.getElementById('input-date').value,
-                location: document.getElementById('input-location').value,
-                km: parseFloat(document.getElementById('input-km').value),
-                fuelLiters: parseFloat(document.getElementById('input-fuel-liters').value),
-                fuelCost: parseFloat(document.getElementById('input-fuel-cost').value),
-                fare: parseFloat(document.getElementById('input-fare').value),
+                id: editId || Date.now().toString(), date: document.getElementById('input-date').value, time: document.getElementById('input-time').value,
+                pickup: document.getElementById('input-pickup').value, dropoff: document.getElementById('input-dropoff').value,
+                km: parseFloat(document.getElementById('input-km').value), fuelLiters: parseFloat(document.getElementById('input-fuel-liters').value),
+                fuelCost: parseFloat(document.getElementById('input-fuel-cost').value), fare: parseFloat(document.getElementById('input-fare').value),
                 commission: parseFloat(document.getElementById('input-commission').value)
             };
-            tripData.netRevenue = tripData.fare - tripData.commission;
-            tripData.profit = tripData.netRevenue - tripData.fuelCost;
-            
-            if (editId) {
-                const index = trips.findIndex(t => t.id === editId);
-                trips[index] = tripData;
-                cancelEdit();
-            } else { trips.push(tripData); }
-            
-            localStorage.setItem('bolt_trips_v7', JSON.stringify(trips));
-            this.reset();
-            document.getElementById('input-date').valueAsDate = new Date();
+            tripData.netRevenue = tripData.fare - tripData.commission; tripData.profit = tripData.netRevenue - tripData.fuelCost;
+            if (editId) { const index = trips.findIndex(t => t.id === editId); trips[index] = tripData; cancelEdit(); } else { trips.push(tripData); }
+            localStorage.setItem('bolt_trips_v9', JSON.stringify(trips));
+            this.reset(); document.getElementById('input-date').valueAsDate = new Date(); document.getElementById('input-time').value = new Date().toTimeString().substring(0,5);
             showPage('dashboard', document.querySelector('.nav-item'));
         });
 
         function editTrip(id) {
-            const trip = trips.find(t => t.id === id);
-            if (!trip) return;
-            document.getElementById('edit-trip-id').value = trip.id;
-            document.getElementById('input-date').value = trip.date;
-            document.getElementById('input-location').value = trip.location;
-            document.getElementById('input-km').value = trip.km;
-            document.getElementById('input-fuel-liters').value = trip.fuelLiters;
-            document.getElementById('input-fuel-cost').value = trip.fuelCost;
-            document.getElementById('input-fare').value = trip.fare;
-            document.getElementById('input-commission').value = trip.commission;
-            document.getElementById('trip-form-title').innerText = "Edit Trip";
-            document.getElementById('trip-submit-btn').innerText = "Update Trip";
-            document.getElementById('cancel-edit-btn').style.display = 'block';
-            showPage('add', document.querySelectorAll('.nav-item')[1]);
+            const trip = trips.find(t => t.id === id); if (!trip) return;
+            document.getElementById('edit-trip-id').value = trip.id; document.getElementById('input-date').value = trip.date; document.getElementById('input-time').value = trip.time || '12:00';
+            document.getElementById('input-pickup').value = trip.pickup || trip.location; document.getElementById('input-dropoff').value = trip.dropoff || trip.location;
+            document.getElementById('input-km').value = trip.km; document.getElementById('input-fuel-liters').value = trip.fuelLiters;
+            document.getElementById('input-fuel-cost').value = trip.fuelCost; document.getElementById('input-fare').value = trip.fare; document.getElementById('input-commission').value = trip.commission;
+            document.getElementById('trip-form-title').innerText = "Edit Trip"; document.getElementById('trip-submit-btn').innerText = "Update Trip";
+            document.getElementById('cancel-edit-btn').style.display = 'block'; showPage('add', document.querySelectorAll('.nav-item')[1]);
         }
+        function cancelEdit() { document.getElementById('tripForm').reset(); document.getElementById('edit-trip-id').value = ''; document.getElementById('input-date').valueAsDate = new Date(); document.getElementById('input-time').value = new Date().toTimeString().substring(0,5); document.getElementById('trip-form-title').innerText = "Log Shift / Trip"; document.getElementById('trip-submit-btn').innerText = "Save Trip Data"; document.getElementById('cancel-edit-btn').style.display = 'none'; }
+        function deleteTrip(id) { if (confirm("Delete this trip?")) { trips = trips.filter(t => t.id !== id); localStorage.setItem('bolt_trips_v9', JSON.stringify(trips)); updateDashboard(); } }
 
-        function cancelEdit() {
-            document.getElementById('tripForm').reset();
-            document.getElementById('edit-trip-id').value = '';
-            document.getElementById('input-date').valueAsDate = new Date();
-            document.getElementById('trip-form-title').innerText = "Log Shift / Trip";
-            document.getElementById('trip-submit-btn').innerText = "Save Trip Data";
-            document.getElementById('cancel-edit-btn').style.display = 'none';
-        }
-
-        function deleteTrip(id) {
-            if (confirm("Are you sure you want to delete this trip?")) {
-                trips = trips.filter(t => t.id !== id);
-                localStorage.setItem('bolt_trips_v7', JSON.stringify(trips));
-                updateDashboard();
-            }
-        }
-
-        // --- EXPENSE LOGIC ---
         document.getElementById('expenseForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const editId = document.getElementById('edit-expense-id').value;
-            const expData = {
-                id: editId || Date.now().toString(),
-                date: document.getElementById('expense-date').value,
-                type: document.getElementById('expense-type').value,
-                cost: parseFloat(document.getElementById('expense-cost').value),
-                desc: document.getElementById('expense-desc').value
-            };
-            if (editId) {
-                const index = expenses.findIndex(ex => ex.id === editId);
-                expenses[index] = expData;
-                cancelExpenseEdit();
-            } else { expenses.push(expData); }
-            localStorage.setItem('bolt_expenses_v7', JSON.stringify(expenses));
-            this.reset();
-            document.getElementById('expense-date').valueAsDate = new Date();
-            renderExpenses();
+            const expData = { id: editId || Date.now().toString(), date: document.getElementById('expense-date').value, type: document.getElementById('expense-type').value, cost: parseFloat(document.getElementById('expense-cost').value), desc: document.getElementById('expense-desc').value };
+            if (editId) { const index = expenses.findIndex(ex => ex.id === editId); expenses[index] = expData; cancelExpenseEdit(); } else { expenses.push(expData); }
+            localStorage.setItem('bolt_expenses_v9', JSON.stringify(expenses)); this.reset(); document.getElementById('expense-date').valueAsDate = new Date(); renderExpenses();
         });
-
-        function editExpense(id) {
-            const exp = expenses.find(ex => ex.id === id);
-            if (!exp) return;
-            document.getElementById('edit-expense-id').value = exp.id;
-            document.getElementById('expense-date').value = exp.date;
-            document.getElementById('expense-type').value = exp.type;
-            document.getElementById('expense-cost').value = exp.cost;
-            document.getElementById('expense-desc').value = exp.desc;
-            document.getElementById('expense-form-title').innerText = "Edit Expense";
-            document.getElementById('expense-submit-btn').innerText = "Update Expense";
-            document.getElementById('cancel-expense-edit-btn').style.display = 'block';
-        }
-
-        function cancelExpenseEdit() {
-            document.getElementById('expenseForm').reset();
-            document.getElementById('edit-expense-id').value = '';
-            document.getElementById('expense-date').valueAsDate = new Date();
-            document.getElementById('expense-form-title').innerText = "Log Vehicle Expense";
-            document.getElementById('expense-submit-btn').innerText = "Save Expense";
-            document.getElementById('cancel-expense-edit-btn').style.display = 'none';
-            renderExpenses();
-        }
-
-        function deleteExpense(id) {
-            if (confirm("Are you sure you want to delete this expense?")) {
-                expenses = expenses.filter(ex => ex.id !== id);
-                localStorage.setItem('bolt_expenses_v7', JSON.stringify(expenses));
-                renderExpenses();
-                updateDashboard();
-            }
-        }
+        function editExpense(id) { const exp = expenses.find(ex => ex.id === id); if (!exp) return; document.getElementById('edit-expense-id').value = exp.id; document.getElementById('expense-date').value = exp.date; document.getElementById('expense-type').value = exp.type; document.getElementById('expense-cost').value = exp.cost; document.getElementById('expense-desc').value = exp.desc; document.getElementById('expense-form-title').innerText = "Edit Expense"; document.getElementById('expense-submit-btn').innerText = "Update Expense"; document.getElementById('cancel-expense-edit-btn').style.display = 'block'; }
+        function cancelExpenseEdit() { document.getElementById('expenseForm').reset(); document.getElementById('edit-expense-id').value = ''; document.getElementById('expense-date').valueAsDate = new Date(); document.getElementById('expense-form-title').innerText = "Log Vehicle Expense"; document.getElementById('expense-submit-btn').innerText = "Save Expense"; document.getElementById('cancel-expense-edit-btn').style.display = 'none'; renderExpenses(); }
+        function deleteExpense(id) { if (confirm("Delete this expense?")) { expenses = expenses.filter(ex => ex.id !== id); localStorage.setItem('bolt_expenses_v9', JSON.stringify(expenses)); renderExpenses(); updateDashboard(); } }
 
         function renderExpenses() {
             const container = document.getElementById('recent-expenses-list');
             if (expenses.length === 0) { container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No expenses logged yet.</p>'; return; }
             const sorted = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
-            container.innerHTML = sorted.map(exp => `
-                <div class="history-item">
-                    <div class="history-info">
-                        <div class="history-title">${exp.type}</div>
-                        <div class="history-sub">${new Date(exp.date).toLocaleDateString()} • ₦${exp.cost.toLocaleString()} ${exp.desc ? '• ' + exp.desc : ''}</div>
-                    </div>
-                    <div class="history-actions">
-                        <button class="icon-btn edit" onclick="editExpense('${exp.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
-                        <button class="icon-btn delete" onclick="deleteExpense('${exp.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
-                    </div>
-                </div>
-            `).join('');
+            container.innerHTML = sorted.map(exp => `<div class="history-item"><div class="history-info"><div class="history-title">${exp.type}</div><div class="history-sub">${new Date(exp.date).toLocaleDateString()} • ₦${exp.cost.toLocaleString()} ${exp.desc ? '• ' + exp.desc : ''}</div></div><div class="history-actions"><button class="icon-btn edit" onclick="editExpense('${exp.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button><button class="icon-btn delete" onclick="deleteExpense('${exp.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></div></div>`).join('');
         }
 
-        // --- DOCUMENT TRACKER LOGIC ---
-        document.getElementById('docForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const docData = {
-                id: Date.now().toString(),
-                name: document.getElementById('doc-name').value,
-                expiryDate: document.getElementById('doc-date').value
-            };
-            documents.push(docData);
-            localStorage.setItem('bolt_docs_v7', JSON.stringify(documents));
-            this.reset();
-            renderDocuments();
-        });
-
-        function deleteDocument(id) {
-            if (confirm("Delete this document record?")) {
-                documents = documents.filter(d => d.id !== id);
-                localStorage.setItem('bolt_docs_v7', JSON.stringify(documents));
-                renderDocuments();
-            }
-        }
-
-        function renderDocuments() {
-            const container = document.getElementById('doc-list');
-            if (documents.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-secondary); font-size: 13px; text-align: center;">No documents added yet.</p>';
-                return;
-            }
-            
-            const today = new Date();
-            const sortedDocs = [...documents].sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
-
-            container.innerHTML = sortedDocs.map(doc => {
-                const expiry = new Date(doc.expiryDate);
-                const daysLeft = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
-                
-                let statusColor = 'var(--accent-green)';
-                let statusText = `${daysLeft} days left`;
-                let cardClass = '';
-
-                if (daysLeft < 0) {
-                    statusColor = 'var(--accent-red)';
-                    statusText = `EXPIRED ${Math.abs(daysLeft)} days ago`;
-                    cardClass = 'red';
-                } else if (daysLeft <= 15) {
-                    statusColor = 'var(--accent-red)';
-                    statusText = `URGENT: ${daysLeft} days left`;
-                    cardClass = 'red';
-                } else if (daysLeft <= 30) {
-                    statusColor = 'var(--accent-orange)';
-                    statusText = `${daysLeft} days left`;
-                    cardClass = 'orange';
-                }
-
-                return `
-                <div class="insight-card ${cardClass}" style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div class="insight-title">${doc.name}</div>
-                        <div class="insight-text">Expires: ${new Date(doc.expiryDate).toLocaleDateString()}</div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-weight: 800; font-size: 14px; color: ${statusColor};">${statusText}</div>
-                        <button class="icon-btn delete" style="margin-top: 5px; margin-left: auto;" onclick="deleteDocument('${doc.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        // --- FILTERS & DASHBOARD ---
+        // --- FILTERS ---
         function setFilter(filter, el) {
-            currentFilter = filter;
+            currentFilter = filter; customStartDate = null; customEndDate = null;
+            document.getElementById('custom-date-container').classList.remove('show');
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            if(el) el.classList.add('active');
+            updateDashboard();
+        }
+        function toggleCustomDate(el) {
+            currentFilter = 'custom';
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             el.classList.add('active');
-            updateDashboard();
+            document.getElementById('custom-date-container').classList.add('show');
+        }
+        function applyCustomDate() {
+            const start = document.getElementById('custom-start-date').value;
+            const end = document.getElementById('custom-end-date').value;
+            if (start && end) { customStartDate = new Date(start); customEndDate = new Date(end); customEndDate.setHours(23,59,59); updateDashboard(); }
         }
 
         function getFilteredTrips() {
@@ -817,37 +481,60 @@
                 if (currentFilter === 'day') return tripDate.toDateString() === now.toDateString();
                 if (currentFilter === 'week') return tripDate >= new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
                 if (currentFilter === 'month') return tripDate.getMonth() === now.getMonth() && tripDate.getFullYear() === now.getFullYear();
-                if (currentFilter === 'quarter') {
-                    const currentQ = Math.floor(now.getMonth() / 3);
-                    const tripQ = Math.floor(tripDate.getMonth() / 3);
-                    return tripQ === currentQ && tripDate.getFullYear() === now.getFullYear();
-                }
+                if (currentFilter === 'quarter') { const currentQ = Math.floor(now.getMonth() / 3); const tripQ = Math.floor(tripDate.getMonth() / 3); return tripQ === currentQ && tripDate.getFullYear() === now.getFullYear(); }
                 if (currentFilter === 'year') return tripDate.getFullYear() === now.getFullYear();
+                if (currentFilter === 'custom' && customStartDate && customEndDate) return tripDate >= customStartDate && tripDate <= customEndDate;
+                return true;
+            });
+        }
+        function getFilteredExpenses() {
+            const now = new Date();
+            return expenses.filter(exp => {
+                const expDate = new Date(exp.date);
+                if (currentFilter === 'day') return expDate.toDateString() === now.toDateString();
+                if (currentFilter === 'week') return expDate >= new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                if (currentFilter === 'month') return expDate.getMonth() === now.getMonth() && expDate.getFullYear() === now.getFullYear();
+                if (currentFilter === 'quarter') { const currentQ = Math.floor(now.getMonth() / 3); const expQ = Math.floor(expDate.getMonth() / 3); return expQ === currentQ && expDate.getFullYear() === now.getFullYear(); }
+                if (currentFilter === 'year') return expDate.getFullYear() === now.getFullYear();
+                if (currentFilter === 'custom' && customStartDate && customEndDate) return expDate >= customStartDate && expDate <= customEndDate;
                 return true;
             });
         }
 
+        // --- DASHBOARD UPDATE ---
         function updateDashboard() {
             const filteredTrips = getFilteredTrips();
+            const filteredExpenses = getFilteredExpenses();
             
             const totalFares = filteredTrips.reduce((sum, t) => sum + t.fare, 0);
             const totalCommission = filteredTrips.reduce((sum, t) => sum + t.commission, 0);
             const totalFuelCost = filteredTrips.reduce((sum, t) => sum + t.fuelCost, 0);
             const totalKm = filteredTrips.reduce((sum, t) => sum + t.km, 0);
+            const totalOtherExpenses = filteredExpenses.reduce((sum, e) => sum + e.cost, 0);
             const netTripProfit = (totalFares - totalCommission) - totalFuelCost;
+            const trueNetProfit = netTripProfit - totalOtherExpenses;
 
+            // FUEL CALCULATION (Works perfectly for small 10L purchases)
             const allTimeFuelBought = trips.reduce((sum, t) => sum + t.fuelLiters, 0);
             const allTimeKmDriven = trips.reduce((sum, t) => sum + t.km, 0);
             const actualTankLevel = Math.max(0, allTimeFuelBought - (allTimeKmDriven / settings.efficiency));
+            
+            // Update Fuel Gauge
+            const fuelPercentage = Math.min(100, (actualTankLevel / settings.capacity) * 100);
+            const gaugeBar = document.getElementById('fuel-gauge-bar');
+            gaugeBar.style.width = `${fuelPercentage}%`;
+            
+            if (fuelPercentage > 50) gaugeBar.style.background = 'var(--accent-green)';
+            else if (fuelPercentage > 25) gaugeBar.style.background = 'var(--accent-orange)';
+            else gaugeBar.style.background = 'var(--accent-red)';
 
             const periodFuelBought = filteredTrips.reduce((sum, t) => sum + t.fuelLiters, 0);
             const periodFuelBalance = periodFuelBought - (totalKm / settings.efficiency);
 
-            document.getElementById('stat-profit').innerText = `₦${netTripProfit.toLocaleString()}`;
+            document.getElementById('stat-profit').innerText = `₦${trueNetProfit.toLocaleString()}`;
             document.getElementById('stat-fares').innerText = `₦${totalFares.toLocaleString()}`;
             document.getElementById('stat-km').innerText = `${totalKm.toFixed(1)} km`;
-            document.getElementById('stat-fuel').innerText = `${actualTankLevel.toFixed(1)} L`;
-            
+            document.getElementById('stat-fuel').innerText = `${actualTankLevel.toFixed(1)} L / ${settings.capacity}L`;
             const periodFuelEl = document.getElementById('stat-period-fuel');
             periodFuelEl.innerText = `${periodFuelBalance.toFixed(1)} L`;
             periodFuelEl.className = periodFuelBalance < 0 ? 'stat-value red' : (periodFuelBalance === 0 ? 'stat-value orange' : 'stat-value purple');
@@ -855,108 +542,40 @@
             document.getElementById('break-fares').innerText = `₦${totalFares.toLocaleString()}`;
             document.getElementById('break-comm').innerText = `-₦${totalCommission.toLocaleString()}`;
             document.getElementById('break-fuel').innerText = `-₦${totalFuelCost.toLocaleString()}`;
-            document.getElementById('break-net').innerText = `₦${netTripProfit.toLocaleString()}`;
+            document.getElementById('break-net').innerText = `₦${trueNetProfit.toLocaleString()}`;
 
-            const target = settings.dailyTarget;
-            const progress = Math.min(100, Math.max(0, (netTripProfit / target) * 100));
-            document.getElementById('target-text').innerText = `₦${netTripProfit.toLocaleString()} / ₦${target.toLocaleString()}`;
-            
-            const bar = document.getElementById('target-bar');
-            bar.style.width = `${progress}%`;
-            bar.className = `progress-bar ${progress >= 100 ? 'green' : (progress >= 50 ? 'orange' : 'red')}`;
-
-            const adviceCard = document.getElementById('smart-advice-card');
-            const deadKmTrips = filteredTrips.filter(t => t.fare === 0).reduce((sum, t) => sum + t.km, 0);
-            
-            if (netTripProfit >= target) {
-                adviceCard.innerHTML = `<div style="display:flex; gap:12px; align-items:center;"><div style="font-size:24px;">🎉</div><div><div class="insight-title" style="color:var(--accent-green);">Target Achieved!</div><div class="insight-text">You've hit your daily profit goal. Consider ending your shift to avoid unnecessary wear and fuel burn.</div></div></div>`;
-                adviceCard.style.borderLeftColor = 'var(--accent-green)';
-            } else if (deadKmTrips > 15 && periodFuelBalance < 0) {
-                adviceCard.innerHTML = `<div style="display:flex; gap:12px; align-items:center;"><div style="font-size:24px;">⚠️</div><div><div class="insight-title" style="color:var(--accent-red);">Fuel Burn Warning</div><div class="insight-text">You've driven ${deadKmTrips}km with no riders and your daily fuel balance is negative. Continuing to chase riders may result in a net loss. Consider going home.</div></div></div>`;
-                adviceCard.style.borderLeftColor = 'var(--accent-red)';
-            } else if (deadKmTrips > 10) {
-                adviceCard.innerHTML = `<div style="display:flex; gap:12px; align-items:center;"><div style="font-size:24px;">💡</div><div><div class="insight-title" style="color:var(--accent-orange);">Low Demand Detected</div><div class="insight-text">You've driven ${deadKmTrips}km without a rider. If this continues, you will burn more fuel than you earn. Consider relocating to a hotter zone or ending the shift.</div></div></div>`;
-                adviceCard.style.borderLeftColor = 'var(--accent-orange)';
-            } else {
-                adviceCard.style.display = 'none';
-            }
-
-            renderCharts(filteredTrips);
+            renderCharts(filteredTrips, filteredExpenses, totalFares, totalCommission, totalFuelCost, totalOtherExpenses);
             renderRecentTrips();
-            renderServiceStatus();
         }
 
-        function renderServiceStatus() {
-            const card = document.getElementById('service-status-card');
-            if (!settings.startingOdometer && !settings.lastServiceOdometer) {
-                card.innerHTML = `<div style="text-align:center; color: var(--text-secondary); padding: 10px;">⚙️ Go to <strong>Insights</strong> to set your Odometer readings for service tracking.</div>`;
-                return;
-            }
-            const allTimeKmDriven = trips.reduce((sum, t) => sum + t.km, 0);
-            const currentOdo = settings.startingOdometer + allTimeKmDriven;
-            const kmSinceService = currentOdo - settings.lastServiceOdometer;
-            const kmUntilNext = settings.serviceInterval - kmSinceService;
+        function renderCharts(data, expData, fares, comm, fuel, otherExp) {
+            Chart.defaults.color = '#94a3b8'; Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
+            
+            if(incomeExpenseChart) incomeExpenseChart.destroy();
+            incomeExpenseChart = new Chart(document.getElementById('incomeExpenseChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Total Fares', 'Bolt Commission', 'Fuel Cost', 'Other Expenses', 'True Profit'],
+                    datasets: [{
+                        label: 'Amount (₦)',
+                        data: [fares, comm, fuel, otherExp, fares - comm - fuel - otherExp],
+                        backgroundColor: ['#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6', '#10b981'],
+                        borderRadius: 6
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } }
+            });
 
-            let statusColor = 'var(--accent-green)';
-            let statusText = 'Healthy';
-            let statusIcon = '✅';
-            let message = `Next service due in <strong>${kmUntilNext.toLocaleString()} km</strong>.`;
+            if(expensePieChart) expensePieChart.destroy();
+            expensePieChart = new Chart(document.getElementById('expensePieChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Fuel Cost', 'Bolt Commission', 'Repairs/Other'],
+                    datasets: [{ data: [fuel, comm, otherExp], backgroundColor: ['#f59e0b', '#ef4444', '#8b5cf6'], borderWidth: 0 }]
+                },
+                options: { responsive: true, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true } } } }
+            });
 
-            if (kmUntilNext <= 0) {
-                statusColor = 'var(--accent-red)';
-                statusText = 'OVERDUE';
-                statusIcon = '🚨';
-                message = `Service is overdue by <strong>${Math.abs(kmUntilNext).toLocaleString()} km</strong>. Please service your Polo immediately!`;
-            } else if (kmUntilNext <= 1000) {
-                statusColor = 'var(--accent-orange)';
-                statusText = 'Due Soon';
-                statusIcon = '⚠️';
-                message = `Next service due in <strong>${kmUntilNext.toLocaleString()} km</strong>. Plan your servicing soon.`;
-            }
-
-            card.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 style="font-size: 16px; font-weight: 800;">Vehicle Health & Service</h3>
-                    <span style="background: ${statusColor}; color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700;">${statusIcon} ${statusText}</span>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px;">
-                    <div>
-                        <div style="color: var(--text-secondary);">Current Est. Odometer</div>
-                        <div style="font-weight: 700; font-size: 16px;">${currentOdo.toLocaleString()} km</div>
-                        <div style="font-size: 10px; color: var(--accent-green); margin-top:2px;">(Includes Rider + Non-Rider Km)</div>
-                    </div>
-                    <div>
-                        <div style="color: var(--text-secondary);">Km Since Last Service</div>
-                        <div style="font-weight: 700; font-size: 16px; color: ${statusColor};">${kmSinceService.toLocaleString()} km</div>
-                    </div>
-                </div>
-                <div style="margin-top: 15px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 12px; border-left: 4px solid ${statusColor};">
-                    <div style="font-size: 13px; line-height: 1.5;">${message}</div>
-                </div>
-            `;
-        }
-
-        function renderRecentTrips() {
-            const container = document.getElementById('recent-trips-list');
-            const sorted = [...trips].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-            if (sorted.length === 0) { container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No trips logged yet.</p>'; return; }
-            container.innerHTML = sorted.map(trip => `
-                <div class="history-item">
-                    <div class="history-info">
-                        <div class="history-title">${trip.location} ${trip.fare === 0 ? '<span style="color:var(--accent-red); font-size:10px;">(NO RIDER)</span>' : ''}</div>
-                        <div class="history-sub">${new Date(trip.date).toLocaleDateString()} • ${trip.km}km • ₦${trip.profit.toLocaleString()} profit</div>
-                    </div>
-                    <div class="history-actions">
-                        <button class="icon-btn edit" onclick="editTrip('${trip.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
-                        <button class="icon-btn delete" onclick="deleteTrip('${trip.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function renderCharts(data) {
-            Chart.defaults.color = '#94a3b8';
-            Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
             const profitByDate = {};
             data.forEach(t => { profitByDate[t.date] = (profitByDate[t.date] || 0) + t.profit; });
             if(barChart) barChart.destroy();
@@ -968,58 +587,55 @@
                 },
                 options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } }
             });
-            const revByLoc = {};
-            data.forEach(t => { revByLoc[t.location] = (revByLoc[t.location] || 0) + t.netRevenue; });
-            if(pieChart) pieChart.destroy();
-            pieChart = new Chart(document.getElementById('pieChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(revByLoc),
-                    datasets: [{ data: Object.values(revByLoc), backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'], borderWidth: 0 }]
-                },
-                options: { responsive: true, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true } } } }
-            });
         }
 
+        function renderRecentTrips() {
+            const container = document.getElementById('recent-trips-list');
+            const sorted = [...trips].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+            if (sorted.length === 0) { container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No trips logged yet.</p>'; return; }
+            container.innerHTML = sorted.map(trip => `<div class="history-item"><div class="history-info"><div class="history-title">${trip.pickup || trip.location} ➔ ${trip.dropoff || trip.location} ${trip.fare === 0 ? '<span style="color:var(--accent-red); font-size:10px;">(NO RIDER)</span>' : ''}</div><div class="history-sub">${new Date(trip.date).toLocaleDateString()} ${trip.time ? 'at '+trip.time : ''} • ${trip.km}km • ₦${trip.profit.toLocaleString()} profit</div></div><div class="history-actions"><button class="icon-btn edit" onclick="editTrip('${trip.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button><button class="icon-btn delete" onclick="deleteTrip('${trip.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></div></div>`).join('');
+        }
+
+        // --- INSIGHTS LOGIC ---
         function updateInsights() {
             const container = document.getElementById('insights-content');
             if (trips.length === 0) { container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">Log trips to generate insights.</p>'; return; }
 
-            const locStats = {};
+            const locStats = {}, timeStats = { Morning: {profit:0, trips:0}, Afternoon: {profit:0, trips:0}, Evening: {profit:0, trips:0}, Night: {profit:0, trips:0} };
             trips.forEach(t => {
-                if(!locStats[t.location]) locStats[t.location] = { profit: 0, km: 0, trips: 0, deadKm: 0 };
-                locStats[t.location].profit += t.profit;
-                locStats[t.location].km += t.km;
-                locStats[t.location].trips += 1;
-                if(t.fare === 0) locStats[t.location].deadKm += t.km;
+                const pickup = t.pickup || t.location;
+                if(!locStats[pickup]) locStats[pickup] = { profit: 0, km: 0, trips: 0 };
+                locStats[pickup].profit += t.profit; locStats[pickup].km += t.km; locStats[pickup].trips += 1;
+                
+                const hour = t.time ? parseInt(t.time.split(':')[0]) : 12;
+                let timeOfDay = 'Afternoon';
+                if (hour >= 6 && hour < 12) timeOfDay = 'Morning';
+                else if (hour >= 12 && hour < 17) timeOfDay = 'Afternoon';
+                else if (hour >= 17 && hour < 21) timeOfDay = 'Evening';
+                else timeOfDay = 'Night';
+                timeStats[timeOfDay].profit += t.profit; timeStats[timeOfDay].trips += 1;
             });
 
             let bestLoc = '', bestProfitPerKm = 0;
-            let mostTripsLoc = '', maxTrips = 0;
-            let highestDeadKmLoc = '', maxDeadKm = 0;
+            for (let loc in locStats) { let ppm = locStats[loc].profit / locStats[loc].km; if (ppm > bestProfitPerKm) { bestProfitPerKm = ppm; bestLoc = loc; } }
+            
+            let bestTime = '', bestTimeProfit = 0;
+            for (let time in timeStats) { if (timeStats[time].profit > bestTimeProfit) { bestTimeProfit = timeStats[time].profit; bestTime = time; } }
 
-            for (let loc in locStats) {
-                let ppm = locStats[loc].profit / locStats[loc].km;
-                if (ppm > bestProfitPerKm) { bestProfitPerKm = ppm; bestLoc = loc; }
-                if (locStats[loc].trips > maxTrips) { maxTrips = locStats[loc].trips; mostTripsLoc = loc; }
-                if (locStats[loc].deadKm > maxDeadKm) { maxDeadKm = locStats[loc].deadKm; highestDeadKmLoc = loc; }
-            }
-
-            const totalRepairs = expenses.filter(e => e.type.includes('Repair')).reduce((sum, e) => sum + e.cost, 0);
+            const totalRepairs = expenses.filter(e => e.type.includes('Repair') || e.type.includes('Settlement')).reduce((sum, e) => sum + e.cost, 0);
 
             container.innerHTML = `
                 <div class="insight-card">
-                    <div class="insight-title">📍 Most Profitable Route</div>
+                    <div class="insight-title">📍 Most Profitable Pickup Zone</div>
                     <div class="insight-text"><strong>${bestLoc}</strong> yields the highest profit per km (₦${bestProfitPerKm.toFixed(2)}/km). <br><em>Tip: Position yourself here during peak hours.</em></div>
                 </div>
-                ${maxDeadKm > 0 ? `
+                <div class="insight-card blue">
+                    <div class="insight-title">⏰ Best Time of Day to Drive</div>
+                    <div class="insight-text"><strong>${bestTime}</strong> is your most profitable time block, generating ₦${bestTimeProfit.toLocaleString()} total profit. <br><em>Tip: Align your 5-6 hour shifts to cover this specific time block.</em></div>
+                </div>
                 <div class="insight-card orange">
-                    <div class="insight-title">⚠️ Dead Mileage Warning</div>
-                    <div class="insight-text">You have driven <strong>${maxDeadKm} km without riders</strong> mostly in <strong>${highestDeadKmLoc}</strong>. <br><em>Tip: This area is consuming your fuel without generating revenue. Avoid this zone during off-peak hours.</em></div>
-                </div>` : ''}
-                <div class="insight-card">
-                    <div class="insight-title">🔧 Polo 1.4 MPI Maintenance Tip</div>
-                    <div class="insight-text">You have spent <strong>₦${totalRepairs.toLocaleString()}</strong> on repairs. <br><em>Tip: Stick to 5W-30 or 5W-40 synthetic oil and change it strictly within your ${settings.serviceInterval.toLocaleString()} km interval to avoid timing chain wear.</em></div>
+                    <div class="insight-title">🔧 Maintenance & Settlements</div>
+                    <div class="insight-text">You have spent <strong>₦${totalRepairs.toLocaleString()}</strong> on repairs and settlements. <br><em>Tip: Stick to 5W-30 synthetic oil and change it strictly within your ${settings.serviceInterval.toLocaleString()} km interval.</em></div>
                 </div>
             `;
         }
